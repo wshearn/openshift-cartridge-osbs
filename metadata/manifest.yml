@@ -88,7 +88,7 @@ Endpoints:
     Backend: ''
     Options:
       websocket: true
-  - Frontend: /osbs_health
+  - Frontend: /health
     Backend: ''
     Options:
       health: true
