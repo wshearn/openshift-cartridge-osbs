@@ -2,6 +2,7 @@
 Name: backup
 Cartridge-Short-Name: OSBS
 Display-Name: OSBS 0.1
+Source-Url: https://github.com/wshearn/openshift-cartridge-osbs.git
 Description: OSBS is a gear backup solution for OpenShift.
 Version: '0.1'
 Versions:
