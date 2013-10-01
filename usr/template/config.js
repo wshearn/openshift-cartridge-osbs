@@ -14,10 +14,10 @@ config.site.env   = "development";
 config.site.theme = "default";
 
 // OpenShift settings.
-if (typeof(process.env.OPENSHIFT_INTERNAL_IP) != "undefined")
+if (typeof(process.env.OPENSHIFT_OSBS_IP) != "undefined")
 {
-  config.web.host = process.env.OPENSHIFT_INTERNAL_IP;
-  config.web.port = process.env.OPENSHIFT_INTERNAL_PORT;
+  config.web.host = process.env.OPENSHIFT_OSBS_IP;
+  config.web.port = process.env.OPENSHIFT_OSBS_PORT;
   config.site.gearHome = process.env.OPENSHIFT_HOMEDIR;
 }
 
