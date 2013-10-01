@@ -16,7 +16,7 @@ config.site.theme = "default";
 // OpenShift settings.
 if (typeof(process.env.OPENSHIFT_INTERNAL_IP) != "undefined")
 {
-  config.web.ip   = process.env.OPENSHIFT_INTERNAL_IP;
+  config.web.host = process.env.OPENSHIFT_INTERNAL_IP;
   config.web.port = process.env.OPENSHIFT_INTERNAL_PORT;
   config.site.gearHome = process.env.OPENSHIFT_HOMEDIR;
 }
