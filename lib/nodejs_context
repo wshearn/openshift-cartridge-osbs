@@ -1,0 +1,12 @@
+# Do not include this into the util file...
+# RHEL, Fedora18 and Fedora19 will overwrite this file to support invoking their NodeJS versions
+
+# RHEL OpenShift Online supported versions
+
+function nodejs_context {
+  /usr/bin/scl enable nodejs010 "$1"
+}
+
+function update-configuration {
+  set-configuration $1 scl nodejs010
+}

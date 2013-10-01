@@ -1,0 +1,21 @@
+{
+  "name": "mysite",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "*",
+    "jade": "*",
+    "stylus": "*",
+    "less-middleware": "*",
+    "node-markdown": "*",
+    "mongodb": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "connect-flash": "*"
+  },
+
+  "main": "app.js"
+}

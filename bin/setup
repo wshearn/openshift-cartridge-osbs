@@ -1,0 +1,36 @@
+#!/bin/bash -e
+
+case "$1" in
+  -v|--version)
+    version="$2"
+esac
+
+# Parse arguments
+source "${OPENSHIFT_OSBS_DIR}/lib/util"
+parse_args $@
+
+# Don't set -u until after the above arg parsing is complete
+set -u
+
+# Copy the version specific files to nodejs directory
+shopt -s dotglob
+for dir in configuration etc; do
+    mkdir -p $OPENSHIFT_OSBS_DIR/$dir
+    cp -Lr $OPENSHIFT_OSBS_DIR/versions/$version/$dir/* $OPENSHIFT_OSBS_DIR/$dir 
+done
+
+# Bug 980102
+# The symlink $OPENSHIFT_REPO_DIR/../node_modules is wrong
+if [ -h "$OPENSHIFT_REPO_DIR/../node_modules" ]; then
+   rm $OPENSHIFT_REPO_DIR/../node_modules
+fi
+
+
+###
+pushd $OPENSHIFT_OSBS_DIR > /dev/null
+for dir in conf logs sessions run tmp; do
+	mkdir -p $dir
+done
+popd > /dev/null
+
+

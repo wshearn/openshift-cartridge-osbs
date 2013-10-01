@@ -1,0 +1,23 @@
+#!/usr/bin/bash
+
+uuid=$1
+app=$2
+
+SNAPSHOT_DIR="${OPENSHIFT_DATA_DIR}/backups/$(date +%d/%m/%Y)/"
+
+SNAPSHOT="${SNAPSHOT_DIR}/${app}.tar.gz"
+
+if [ ! -d $SNAPSHOT_DIR ];
+then
+    mkdir -p $SNAPSHOT_DIR
+fi
+
+#build up a command that looks like
+# ssh -i ~/app_root/data/osbs_is_rsa 1234556@test-namespace.rhcloud.com 'snapshot' > backup.tar.gz
+
+ssh_cmd="ssh -i ${OPENSHIFT_DATA_DIR}/osbs_id_rsa "
+ssh_cmd+="${uuid}@${app}-${OPENSHIFT_NAMESPACE} "
+ssh_cmd+="$(echo $OPENSHIFT_GEAR_DNS | sed "s/.*${OPENSHIFT_NAMESPACE}//")"
+ssh_cmd+="'snapshot' > ${SNAPSHOT}"
+
+ssh_cmd 2>&1 > $OPENSHIFT_OSBS_LOG_DIR/snapshots.log
