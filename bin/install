@@ -47,7 +47,7 @@ apiadmin_password=$(generate_password)
 sed -i "s/APIADMINPASS/$apiadmin_password/" ${OPENSHIFT_OSBS_DIR}/usr/template/users.json
 
 admin_password=$(generate_password)
-sed -i "s/SITEADMINPASS/$admin_password/" ${OPENSHIFT_REPO_DIR}/usr/template/users.json
+sed -i "s/SITEADMINPASS/$admin_password/" ${OPENSHIFT_OSBS_DIR}/usr/template/users.json
 
 client_result ""
 client_result "OSBS Created successfully. Please make note of these credentials:"
