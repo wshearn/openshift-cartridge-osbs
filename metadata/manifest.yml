@@ -55,6 +55,12 @@ Cart-Data:
 - Key: OPENSHIFT_GEAR_UUID
   Type: environment
   Description: Unique ID which identified the gear. This value changes between gears.
+- Key: OSBS_API_USER
+  Type: environment
+  Description: User for use with the api
+- Key: OSBS_API_PASSWORD
+  Type: environment
+  Description: Password for use with the api
 Provides:
 - osbs-0.1
 - osbs

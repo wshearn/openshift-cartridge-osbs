@@ -39,15 +39,24 @@ chmod 0750 "${OPENSHIFT_DATA_DIR}/.ssh/"
 chmod 0640 "${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa"
 chmod 0640 "${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa.pub"
 
-generate_ssh_keys
-
 public_key=$(cat ${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa.pub)
 set -- $public_key
 add_domain_ssh_key "$2"
 
-add_broker_auth_key
+apiadmin_password=$(generate_password)
+sed -i "s,APIADMINPASS,$apiadmin_password" "${OPENSHIFT_REPO_DIR}/users.json"
 
 admin_password=$(generate_password)
+sed -i "s,SITEADMINPASS,$apiadmin_password" "${OPENSHIFT_REPO_DIR}/users.json"
 
-add_domain_env_var "OSBS_USER=admin"
-add_domain_env_var "OSBS_PASSWORD=${admin_password}"
+client_result ""
+client_result "OSBS Created successfully. Please make note of these credentials:"
+client_result ""
+client_result "    User: admin"
+client_result "    Password: $admin_password"
+client_result ""
+
+add_domain_env_var "OSBS_API_USER=api_admin"
+add_domain_env_var "OSBS_API_PASSWORD=${apiadmin_password}"
+add_domain_env_var "OSBS_API=https://${OPENSHIFT_GEAR_DNS}"
+

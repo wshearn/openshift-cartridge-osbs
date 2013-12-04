@@ -3,14 +3,14 @@
     {
       "id": 1,
       "username": "admin",
-      "password": "admin1"
+      "password": "SITEADMINPASS"
     }
   ],
   "api_users": [
     {
       "id": 1,
       "username": "api_admin",
-      "password": "admin2"
+      "password": "APIADMINPASS"
     }
   ]
 }
