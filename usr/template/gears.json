@@ -1,0 +1,24 @@
+{
+    "gears": [
+        {
+            "name": "gear1",
+            "uuid": "1234567890abcdef"
+        },
+        {
+            "name": "gear2",
+            "uuid": "0987654321fedcba"
+        },
+        {
+            "name": "gear3",
+            "uuid": "abcdef1234567890"
+        },
+        {
+            "name": "gear4",
+            "uuid": "1234567890abcdef"
+        },
+        {
+            "name": "testing",
+            "uuid": "helloworld12345678"
+        }
+    ]
+}

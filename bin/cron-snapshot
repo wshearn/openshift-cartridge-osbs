@@ -1,7 +1,39 @@
 #!/usr/bin/bash
 
-uuid=$1
-app=$2
+usage()
+{
+    echo "This is a simple bash script that backs up your OpenShift gears"
+    echo "Usage:"
+    echo "    -g <gear name> - REQUIRED - The name of the gear to backup"
+    echo "    -u <gear uuid> - REQUIRED - The uuid of the gear to backup"
+    echo "    -h             - Prints this help message and exits"
+}
+
+while getopts "g:u:h" OPTION
+do
+    case $OPTION in
+        g)
+            app=$OPTARG
+            ;;
+        u)
+            uuid=$OPTARG
+            ;;
+        h)
+            usage
+            exit 0;
+            ;;
+    esac
+done
+
+if [[ -z $app ]]; then
+    usage
+    echo -e "\nERROR: Gear name not passed in."
+    exit -1;
+elif [[ -z $uuid ]]; then
+    usage
+    echo -e "\nERROR: Gear uuid not passed in."
+    exit -1;
+fi
 
 SNAPSHOT_DIR="${OPENSHIFT_DATA_DIR}/backups/$(date +%d/%m/%Y)/"
 
@@ -21,3 +53,4 @@ ssh_cmd+="$(echo $OPENSHIFT_GEAR_DNS | sed "s/.*${OPENSHIFT_NAMESPACE}//")"
 ssh_cmd+="'snapshot' > ${SNAPSHOT}"
 
 ssh_cmd 2>&1 > $OPENSHIFT_OSBS_LOG_DIR/snapshots.log
+

@@ -1,0 +1,16 @@
+{
+  "web_users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin1"
+    }
+  ],
+  "api_users": [
+    {
+      "id": 1,
+      "username": "api_admin",
+      "password": "admin2"
+    }
+  ]
+}

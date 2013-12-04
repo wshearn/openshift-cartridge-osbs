@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  fieldset
+    legend Delete Gear
+    div.row
+      div.large-1.columns
+      div.large-11.columns
+        h3 Are you sure you want to delete #{gear}?
+      form(id="confirm_delete", method="POST", action="/deletegearbackup")
+        input(type="hidden", id="gear", value="#{gear}")
+        div.row
+          div.large-3.columns
+          div.large-3.columns
+            button.alert(id="submit", type="submit")
+              | Yes
+          div.large-3.columns
+            a.button(href="/managebackups")
+              | No

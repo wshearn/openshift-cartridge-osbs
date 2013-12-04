@@ -1,0 +1,54 @@
+extends layout
+
+block scripts
+  script(src="/js/flot/jquery.flot.js")
+  script(src="/js/flot/jquery.flot.pie.js")
+  script.
+    var gearBackupGraph = !{JSON.stringify(graphData)}
+    function bytesToSize(bytes) {
+      var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+      if (bytes == 0) return 'n/a';
+      var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+      if (i == 0) return bytes + ' ' + sizes[i+1];
+      return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i+1];
+    };
+    function getPercent(used, free) {
+      var x = (used/free)*100;
+      x = Math.round(x*100)/100;
+      return x + "%";
+    }
+
+    document.getElementById("spaceUsageBar").title = "Disk Used - " + bytesToSize(#{usedSpace});
+    document.getElementById("diskSizeBar").title = "Disk Size - " + bytesToSize(#{diskSpace});
+    document.getElementById("spaceUsageBar").style["width"] = getPercent(#{usedSpace}, #{diskSpace});
+    document.getElementById("freespace").innerHTML = bytesToSize(#{diskSpace}-#{usedSpace});
+    $.plot($("#placeholder"), gearBackupGraph, {
+      series: {
+        pie: {
+          innerRadius: 0.5,
+          show: true
+        }
+      }
+    });
+block content
+  div.row
+    div.large-12.columns
+      div.row
+        div.large-9.columns
+          h3 Account Statistics (ie Manager Page)
+      div.row
+        div.large-12.columns
+          fieldset
+            legend Disk Space
+            div.row
+              div.large-9.columns
+                div.progress.has-tip.alert(id="diskSizeBar", style="background: green")
+                  span.meter.has-tip(id="spaceUsageBar", style="width: 0%")
+              div.large-3.columns
+                p Free: 
+                  span(id="freespace") 0MB
+      div.row
+        div.large-6.columns
+          fieldset
+            legend Gear backups
+            div(id="placeholder", style="width:300px;height:300px")

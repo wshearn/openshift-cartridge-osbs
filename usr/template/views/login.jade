@@ -1,0 +1,13 @@
+extends layout
+
+block scripts
+  script.
+    $("input").keypress(function(event) {
+      if (event.which == 13) {
+          event.preventDefault();
+          $("#login-top-bar").submit();
+      }
+    });
+block content
+  div.columns.small-7.small-centered
+    h4 Please Log In To Manage Your Backups

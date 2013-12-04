@@ -1,0 +1,47 @@
+extends layout
+
+block scripts
+
+block content
+  if data.gears && data.gears.length > 0
+    br
+    form(id="filter", method="POST", action="/filterGears")
+        div.large-12.columns
+          div.row
+            div.large-3.columns
+              h3 Filter:
+            div.large-5.columns
+              select.medium(id="gearlist", name="gear")
+                each gear in data.gears
+                  option= gear.name
+            div.large-3.columns
+              a.button.small(id="manageBackups_filter") Apply
+    each gear in data.gears
+      div.row
+        div.large-12.columns
+          fieldset
+            legend= gear.name
+            if data[gear.name].backups && data[gear.name].backups.length > 0
+              div.row
+                div.large-4.columns
+                  h3 Date
+                div.large-4.columns
+                  h3 Size
+                div.large-4.columns
+                  h3 Delete
+              each backup in data[gear.name].backups
+                div.row
+                  div.large-4.columns
+                    h4= backup.date
+                  div.large-4.columns
+                    h4= backup.size
+                  div.large-4.columns
+                    a.small.button.alert(href="/deletegearbackup/#{gear.name}/#{backup.date}")
+                      | Delete
+            else
+              div.row
+                div.large-12.columns
+                  h4 You have no backups for this gear
+  else
+    div.columns
+      h4 Add the client cartridge to some of your gears

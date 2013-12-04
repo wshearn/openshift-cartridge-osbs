@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  div.row
+    div.large-7.columns
+      a(href="http://test-whearn.rhcloud.com")
+        h1 #{gear}
+  if !backups || backups.length == 0
+    div.row
+      div.large-8.columns
+        h3 You have no backups for this gear
+  else
+    div.row
+      div.large-5.columns
+        h3 Backup Date
+      div.large-5.columns
+        h3 Download Backup
+      div.large-2.columns
+        h3 Restore
+    hr
+    each backup in backups
+      div.row
+        div.large-5.columns
+          h4 #{backup.date}
+        div.large-5.columns
+          h4 
+            a(href="/backups/test/#{backup.date}-#{gear}.tar.bz2")
+              | Download
+        div.large-2.columns
+          form(method="link", action"/gearinfo/#{gear}")
+            button.warn.button(type="submit")
+              | Restore

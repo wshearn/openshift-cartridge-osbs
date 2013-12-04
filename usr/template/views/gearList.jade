@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  if (gears.length > 0)
+    div.row
+      div.large-4.columns
+        h3 Gear Name
+      div.large-5.columns
+        h3 Gear Url
+      div.large-2.columns
+        h3 Manage
+    hr
+    each gear in gears
+      div.row.display
+        div.large-4.columns
+          p #{gear.name}
+        div.large-6.columns
+          p 
+            a(href="http://#{gear.name}-whearn.rhcloud.com")
+              | #{gear.name}-whearn.rhcloud.com
+        div.large-2.columns
+          a(href="/gearinfo/#{gear.name}").button.small
+              | Manage
+  else
+    div.columns
+      h4 Add the client cartridge to some of your gears

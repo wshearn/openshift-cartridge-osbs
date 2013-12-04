@@ -1,0 +1,26 @@
+nav.top-bar
+  ul.title-area
+    li.name
+      h1
+        a(href='/') OSBS
+    li.toggle-topbar.menu-icon
+      a(href="#")
+        span Menu
+  section.top-bar-section
+    if loggedIn
+      ul.right
+        li.has-form
+          a.button(href="/logout").alert
+            | LogOut
+    else
+      form(action="/login", method="post", id="login-top-bar")
+        ul.right
+          li.has-form
+            input(type="text", placeholder="Username", name="username")
+          li.has-form
+            input(type="password", placeholder="Password", name="password")
+          li.has-form
+            a.button(href="#", onclick="document.getElementById('login-top-bar').submit();")
+              | Login
+
+

@@ -3,25 +3,23 @@ var config = {}
 config.web  = {};
 config.site = {};
 
-config.modules = ["index"];
-
 // IP:Port to listen on
 config.web.host   = "localhost";
 config.web.port   = 3000;
-config.site.gearHome = process.env.HOME;
+config.site.gearHome = process.env.HOME + "/osbsTest";
 
 config.site.env   = "development";
 config.site.theme = "default";
 
-// OpenShift settings.
-if (typeof(process.env.OPENSHIFT_OSBS_IP) != "undefined")
-{
-  config.web.host = process.env.OPENSHIFT_OSBS_IP;
-  config.web.port = process.env.OPENSHIFT_OSBS_PORT;
-  config.site.gearHome = process.env.OPENSHIFT_HOMEDIR;
-}
+config.site.on_openshift = false;
 
-config.views  = __dirname + '/themes/' + config.site.theme + "/views";
-config.public = __dirname + '/themes/' + config.site.theme + "/public";
+// OpenShift settings.
+if (typeof(process.env.OPENSHIFT_NODEJS_IP) != "undefined")
+{
+  config.web.host   = process.env.OPENSHIFT_NODEJS_IP;
+  config.web.port = process.env.OPENSHIFT_NODEJS_PORT;
+  config.site.gearHome = process.env.OPENSHIFT_HOMEDIR;
+  config.site.on_openshift = true;
+}
 
 module.exports = config;

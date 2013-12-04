@@ -1,21 +1,18 @@
 {
-  "name": "mysite",
-  "version": "0.1.0",
+  "name": "OSBS",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "*",
     "jade": "*",
-    "stylus": "*",
-    "less-middleware": "*",
-    "node-markdown": "*",
-    "mongodb": "*",
     "passport": "*",
+    "passport-http": "*",
     "passport-local": "*",
     "connect-flash": "*"
   },
 
-  "main": "app.js"
+  "main": "server.js"
 }
