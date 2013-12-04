@@ -226,9 +226,11 @@ function RestScheduleBackup (req, res) {
 
     var cronPath = "";
     cronPath += OSBS.config.site.gearHome + "/";
+    cronPath += "app-root/repo/.openshift/cron/"
     cronPath += occur + "/" + request["gear"];
 
     fs.appendFile(cronPath, cronString, null);
+    fs.chmodSync(cronPath, '0700');
 
     result = {
       result: true,

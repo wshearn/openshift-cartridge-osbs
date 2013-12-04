@@ -190,9 +190,11 @@ function PostScheduleBackup(req, res)
 
     var cronPath = "";
     cronPath += OSBS.config.site.gearHome + "/";
-    cronPath += occur + "/" + req.body.gear;
+    cronPath += "app-root/repo/.openshift/cron/"
+    cronPath += occur + "/" + request["gear"];
 
     fs.appendFile(cronPath, cronString, null);
+    fs.chmodSync(cronPath, '0700');
 
     return res.send("success");
   } catch (err) {
