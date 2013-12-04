@@ -14,10 +14,10 @@ config.site.theme = "default";
 config.site.on_openshift = false;
 
 // OpenShift settings.
-if (typeof(process.env.OPENSHIFT_NODEJS_IP) != "undefined")
+if (typeof(process.env.OPENSHIFT_BACKUP_IP) != "undefined")
 {
-  config.web.host   = process.env.OPENSHIFT_NODEJS_IP;
-  config.web.port = process.env.OPENSHIFT_NODEJS_PORT;
+  config.web.host   = process.env.OPENSHIFT_BACKUP_IP;
+  config.web.port = process.env.OPENSHIFT_BACKUP_PORT;
   config.site.gearHome = process.env.OPENSHIFT_HOMEDIR;
   config.site.on_openshift = true;
 }
