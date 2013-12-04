@@ -58,5 +58,5 @@ client_result ""
 
 add_domain_env_var "OSBS_API_USER=api_admin"
 add_domain_env_var "OSBS_API_PASSWORD=${apiadmin_password}"
-add_domain_env_var "OSBS_API=https://${OPENSHIFT_GEAR_DNS}"
+add_domain_env_var "OSBS_API_URL=https://${OPENSHIFT_GEAR_DNS}"
 
