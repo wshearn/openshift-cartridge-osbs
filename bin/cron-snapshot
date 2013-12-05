@@ -57,7 +57,7 @@ fi
 #build up a command that looks like
 # ssh -i ~/app_root/data/osbs_is_rsa 1234556@test-namespace.rhcloud.com 'snapshot' > backup.tar.gz
 
-ssh_cmd="ssh -i ${OPENSHIFT_DATA_DIR}/osbs_id_rsa "
+ssh_cmd="ssh -i ${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa "
 ssh_cmd+="${uuid}@${app}-${OPENSHIFT_NAMESPACE} "
 ssh_cmd+="$(echo $OPENSHIFT_GEAR_DNS | sed "s/.*${OPENSHIFT_NAMESPACE}//")"
 ssh_cmd+="'snapshot' > ${SNAPSHOT}"
