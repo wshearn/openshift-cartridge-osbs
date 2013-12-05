@@ -215,25 +215,26 @@ function RestScheduleBackup (req, res) {
     if (typeof(data.name) === 'undefined')
       throw new error("Nope");
 
-    var cronString = "";
-    cronString += OSBS.config.site.gearHome;
-    cronString += "/osbs/bin/cron-snapshot";
-    cronString += " -g " + data.name;
-    cronString += " -u " + data.uuid + "\n";
-
     var occur;
-    if (req.body["occurrence"] == "Once")
+    if (occurrence.toLowerCase() === "once")
       occur = "minutely"
     else
-      occur = req.body["occurrence"].toLowerCase();
+      occur = occurrence.toLowerCase();
+
+    var cronString = "";
+    cronString += OSBS.config.site.gearHome;
+    cronString += "/backup/bin/cron-snapshot";
+    cronString += " -g " + data.name;
+    cronString += " -u " + data.uuid;
+    cronString += " -o " + occur + "\n";
 
     var cronPath = "";
     cronPath += OSBS.config.site.gearHome + "/";
     cronPath += "app-root/repo/.openshift/cron/"
     cronPath += occur + "/" + data.name;
 
-    var file = fs.open(cronPath, 'w', 0700);
-    
+    fs.writeFileSync(cronPath, cronString, null);
+    fs.chmodSync(cronPath, 448); // 448 == 0700 in octal
 
     result = {
       result: true,

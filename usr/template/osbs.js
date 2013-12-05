@@ -163,7 +163,6 @@ function RenderApiDocs(req, res)
   RenderHelper('apidocs', title, '', req, res);
 }
 
-// TODO: Check for existing backups and don't dup it.
 function PostScheduleBackup(req, res)
 {
   try {
@@ -176,11 +175,6 @@ function PostScheduleBackup(req, res)
     };
     if (typeof(data.name) === 'undefined')
       throw new error("Nope");
-    var cronString = "";
-    cronString += OSBS.config.site.gearHome;
-    cronString += "/osbs/bin/cron-snapshot";
-    cronString += " -g " + data.name;
-    cronString += " -u " + data.uuid + "\n";
 
     var occur;
     if (req.body["occurrence"] == "Once")
@@ -188,13 +182,20 @@ function PostScheduleBackup(req, res)
     else
       occur = req.body["occurrence"].toLowerCase();
 
+    var cronString = "";
+    cronString += OSBS.config.site.gearHome;
+    cronString += "/backup/bin/cron-snapshot";
+    cronString += " -g " + data.name;
+    cronString += " -u " + data.uuid;
+    cronString += " -o " + occur + "\n";
+
     var cronPath = "";
     cronPath += OSBS.config.site.gearHome + "/";
     cronPath += "app-root/repo/.openshift/cron/"
     cronPath += occur + "/" + data.name;
 
-    fs.appendFile(cronPath, cronString, null);
-    fs.chmodSync(cronPath, '0700');
+    fs.writeFileSync(cronPath, cronString, null);
+    fs.chmodSync(cronPath, 448); // 448 == 0700 in octal
 
     return res.send("success");
   } catch (err) {
@@ -203,7 +204,7 @@ function PostScheduleBackup(req, res)
 }
 
 function PostGearDelete (req, res) {
-  console.log(req.data)
+  console.log(req.data);
   res.redirect('/managebackups');
 }
 

@@ -4,12 +4,13 @@ usage()
 {
     echo "This is a simple bash script that backs up your OpenShift gears"
     echo "Usage:"
-    echo "    -g <gear name> - REQUIRED - The name of the gear to backup"
-    echo "    -u <gear uuid> - REQUIRED - The uuid of the gear to backup"
-    echo "    -h             - Prints this help message and exits"
+    echo "    -g <gear name>  - REQUIRED  - The name of the gear to backup"
+    echo "    -u <gear uuid>  - REQUIRED  - The uuid of the gear to backup"
+    echo "    -o <occurrence> - REQUIRED - How often this backup runs"
+    echo "    -h              - Prints this help message and exits"
 }
 
-while getopts "g:u:h" OPTION
+while getopts "g:u:o:h" OPTION
 do
     case $OPTION in
         g)
@@ -18,6 +19,8 @@ do
         u)
             uuid=$OPTARG
             ;;
+        o)
+            occur=$OPTARG
         h)
             usage
             exit 0;
@@ -33,7 +36,13 @@ elif [[ -z $uuid ]]; then
     usage
     echo -e "\nERROR: Gear uuid not passed in."
     exit -1;
+elif [[ -z $occur ]]; then
+    usage
+    echo -e "\nERROR: Occurrence not passed in."
+    exit -1;
 fi
+
+touch $OPENSHIFT_DATA_DIR/.${app}-${uuid}-${occur}-running
 
 SNAPSHOT_DIR="${OPENSHIFT_DATA_DIR}/backups/$(date +%d/%m/%Y)/"
 
@@ -54,3 +63,9 @@ ssh_cmd+="'snapshot' > ${SNAPSHOT}"
 
 ssh_cmd 2>&1 > $OPENSHIFT_OSBS_LOG_DIR/snapshots.log
 
+if [[ "${occur}" == "minutely" ]]
+then
+    rm -f $OPENSHIFT_REPO_DIR/app-root/repo/.openshift/cron/${occur}/${app}
+fi
+
+rm -f $OPENSHIFT_DATA_DIR/.${app}-${uuid}-${occur}-running
