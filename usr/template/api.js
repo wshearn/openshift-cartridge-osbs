@@ -232,8 +232,8 @@ function RestScheduleBackup (req, res) {
     cronPath += "app-root/repo/.openshift/cron/"
     cronPath += occur + "/" + data.name;
 
-    fs.appendFile(cronPath, cronString, null);
-    fs.chmodSync(cronPath, '0700');
+    var file = fs.open(cronPath, 'w', 0700);
+    
 
     result = {
       result: true,
