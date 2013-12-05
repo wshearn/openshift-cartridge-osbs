@@ -62,7 +62,7 @@ ssh_cmd+="${uuid}@${app}-${OPENSHIFT_NAMESPACE} "
 ssh_cmd+="$(echo $OPENSHIFT_GEAR_DNS | sed "s/.*${OPENSHIFT_NAMESPACE}//")"
 ssh_cmd+="'snapshot' > ${SNAPSHOT}"
 
-ssh_cmd 2>&1 > $OPENSHIFT_OSBS_LOG_DIR/snapshots.log
+$ssh_cmd 2>&1 > $OPENSHIFT_OSBS_LOG_DIR/snapshots.log
 
 if [[ "${occur}" == "minutely" ]]
 then
