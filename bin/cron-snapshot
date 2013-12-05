@@ -43,6 +43,12 @@ elif [[ -z $occur ]]; then
     exit -1;
 fi
 
+# Exit cleanly if we are already running
+if [[ -f $OPENSHIFT_DATA_DIR/.${app}-${uuid}-${occur}-running ]]
+then
+    exit 0;
+fi
+
 touch $OPENSHIFT_DATA_DIR/.${app}-${uuid}-${occur}-running
 
 SNAPSHOT_DIR="${OPENSHIFT_DATA_DIR}/backups/$(date +%d/%m/%Y)/"
@@ -58,11 +64,12 @@ fi
 # ssh -i ~/app_root/data/osbs_is_rsa 1234556@test-namespace.rhcloud.com 'snapshot' > backup.tar.gz
 
 ssh_cmd="ssh -i ${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa "
-ssh_cmd+="${uuid}@${app}-${OPENSHIFT_NAMESPACE} "
-ssh_cmd+="$(echo $OPENSHIFT_GEAR_DNS | sed "s/.*${OPENSHIFT_NAMESPACE}//")"
-ssh_cmd+="'snapshot' > ${SNAPSHOT}"
+ssh_cmd+="${uuid}@${app}-${OPENSHIFT_NAMESPACE}"
+ssh_cmd+="$(echo $OPENSHIFT_GEAR_DNS | sed "s/.*${OPENSHIFT_NAMESPACE}//") "
+ssh_cmd+="\"snapshot\""
 
-$ssh_cmd 2>&1 > $OPENSHIFT_OSBS_LOG_DIR/snapshots.log
+# Kids, don't use eval at home.
+eval $(echo $ssh_cmd) > ${SNAPSHOT}
 
 if [[ "${occur}" == "minutely" ]]
 then
