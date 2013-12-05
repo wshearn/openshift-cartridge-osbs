@@ -21,6 +21,7 @@ do
             ;;
         o)
             occur=$OPTARG
+            ;;
         h)
             usage
             exit 0;
