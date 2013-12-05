@@ -212,6 +212,9 @@ function RestScheduleBackup (req, res) {
       }
     };
 
+    if (typeof(data.name) === 'undefined')
+      throw new error("Nope");
+
     var cronString = "";
     cronString += OSBS.config.site.gearHome;
     cronString += "/osbs/bin/cron-snapshot";
@@ -219,15 +222,15 @@ function RestScheduleBackup (req, res) {
     cronString += " -u " + data.uuid + "\n";
 
     var occur;
-    if (occurrence.toLowerCase() === "once")
+    if (req.body["occurrence"] == "Once")
       occur = "minutely"
     else
-      occur = occurrence.toLowerCase();
+      occur = req.body["occurrence"].toLowerCase();
 
     var cronPath = "";
     cronPath += OSBS.config.site.gearHome + "/";
     cronPath += "app-root/repo/.openshift/cron/"
-    cronPath += occur + "/" + request["gear"];
+    cronPath += occur + "/" + data.name;
 
     fs.appendFile(cronPath, cronString, null);
     fs.chmodSync(cronPath, '0700');

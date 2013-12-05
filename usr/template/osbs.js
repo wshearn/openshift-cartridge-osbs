@@ -191,7 +191,7 @@ function PostScheduleBackup(req, res)
     var cronPath = "";
     cronPath += OSBS.config.site.gearHome + "/";
     cronPath += "app-root/repo/.openshift/cron/"
-    cronPath += occur + "/" + request["gear"];
+    cronPath += occur + "/" + data.name;
 
     fs.appendFile(cronPath, cronString, null);
     fs.chmodSync(cronPath, '0700');
