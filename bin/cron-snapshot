@@ -73,7 +73,7 @@ eval $(echo $ssh_cmd) > ${SNAPSHOT}
 
 if [[ "${occur}" == "minutely" ]]
 then
-    rm -f $OPENSHIFT_REPO_DIR/app-root/repo/.openshift/cron/${occur}/${app}
+    sed -i "s/${app}//" $OPENSHIFT_REPO_DIR/app-root/repo/.openshift/cron/${occur}/jobs.allow
 fi
 
 rm -f $OPENSHIFT_DATA_DIR/.${app}-${uuid}-${occur}-running

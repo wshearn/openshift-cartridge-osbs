@@ -189,15 +189,18 @@ function PostScheduleBackup(req, res)
     cronString += " -u " + data.uuid;
     cronString += " -o " + occur + "\n";
 
-    var cronPath = "";
-    cronPath += OSBS.config.site.gearHome + "/";
-    cronPath += "app-root/repo/.openshift/cron/"
-    cronPath += occur + "/" + data.name;
+    var cronBasePath = "";
+    cronBasePath += OSBS.config.site.gearHome + "/";
+    cronBasePath += "app-root/repo/.openshift/cron/"
+    cronBasePath += occur + "/";
+
+    var cronPath = cronBasePath + data.name;
+    var jobsPath = cronBasePath + "jobs.allow"
 
     fs.writeFileSync(cronPath, cronString, null);
-    fs.chmodSync(cronPath, 448); // 448 == 0700 in octal
+    fs.writeFileSync(jobsPath, data.name + "\n", null);
 
-    return res.send("success");
+    return res.send("success");fs
   } catch (err) {
     return res.status(500).send("failure");
   }
