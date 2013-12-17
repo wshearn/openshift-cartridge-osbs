@@ -189,13 +189,16 @@ function PostScheduleBackup(req, res)
     cronString += " -u " + data.uuid;
     cronString += " -o " + occur + "\n";
 
-    var cronPath = "";
-    cronPath += OSBS.config.site.gearHome + "/";
-    cronPath += "app-root/repo/.openshift/cron/"
-    cronPath += occur + "/" + data.name;
+    var baseCronPath = "";
+    baseCronPath += OSBS.config.site.gearHome + "/";
+    baseCronPath += "app-root/repo/.openshift/cron/"
+    baseCronPath += occur + "/";
+
+    var cronPath = baseCronPath + data.name;
+    var jobsPath = baseCronPath + "jobs.allow";
 
     fs.writeFileSync(cronPath, cronString, null);
-    fs.chmodSync(cronPath, 448); // 448 == 0700 in octal
+    fs.writeFileSync(jobsPath, data.name + "\n", null);
 
     return res.send("success");
   } catch (err) {
@@ -206,6 +209,17 @@ function PostScheduleBackup(req, res)
 function PostGearDelete (req, res) {
   console.log(req.data);
   res.redirect('/managebackups');
+}
+
+function GetGearDownload (req, res) {
+  var downloadPath = "";
+  downloadPath += OSBS.config.gearHome + "/";
+  downloadPath += "app-root/data/backups/" + params.date;
+  downloadPath += "/" + params.gear + ".tar.gz";
+
+  var downloadName = params.gear + "-" + params.date.replace("/", "-") + ".tar.gz"
+
+  res.download(downloadPath, downloadName);
 }
 
 app.get('/', ensureAuthenticated, RenderIndex);
@@ -220,6 +234,7 @@ app.get('/apidocs', ensureAuthenticated, RenderApiDocs);
 app.get('/deletegearbackup/:gear/:date', ensureAuthenticated, RenderGearDelete);
 app.post('/schedulebackup', ensureAuthenticated, PostScheduleBackup);
 app.post('/deletegearbackup', ensureAuthenticated, PostGearDelete);
+app.post('/downloadbackup/:gear/:date', ensureAuthenticated, GetGearDownload);
 app.post('/login', authenticate, RenderIndex);
 
 // AUTH Crap

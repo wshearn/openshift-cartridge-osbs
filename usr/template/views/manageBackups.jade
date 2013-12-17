@@ -31,11 +31,14 @@ block content
                   h3 Delete
               each backup in data[gear.name].backups
                 div.row
-                  div.large-4.columns
+                  div.large-3.columns
                     h4= backup.date
-                  div.large-4.columns
+                  div.large-3.columns
                     h4= backup.size
-                  div.large-4.columns
+                  div.large-3.columns
+                    a.small.button(href="/downloadbackup/#{gear.name}/#{backup.date}")
+                      | Download
+                  div.large-3.columns
                     a.small.button.alert(href="/deletegearbackup/#{gear.name}/#{backup.date}")
                       | Delete
             else

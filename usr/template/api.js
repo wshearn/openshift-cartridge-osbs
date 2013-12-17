@@ -144,7 +144,7 @@ function RestDelGear (req, res) {
       request.force == false) {
     result["result"] = false;
     result["cause"]  = "This gear still has backups"
-    BasicApiHelper(req, res, result, 500)
+    return BasicApiHelper(req, res, result, 500);
   } else {
     result["result"] = true;
     result["gear"]   = OSBS.us.find(
@@ -170,7 +170,7 @@ function RestDelGear (req, res) {
       'UTF-8'
     );
 
-    BasicApiHelper(req, res, result);
+    return BasicApiHelper(req, res, result);
   }
 }
 
@@ -186,7 +186,38 @@ function RestGetGear (req, res) {
     }
   );
   result["backups"] = OSBS.backups[request.name].backups;
-  BasicApiHelper(req, res, result)
+  return BasicApiHelper(req, res, result)
+}
+
+function RestAddBackup (req, res) {
+  var request = ApiParseReq(req, res);
+  var result = {};
+  var retCode = 200;
+  var backupSize = GetArgument(req, "size");
+  var backupDate = GetArgument(req, "date");
+
+  if (typeof(backupSize) === "undefined") {
+    result = {
+      result: false,
+      cause: "Error getting backup size"
+    }
+    return BasicApiHelper(req, res, result, 500);
+  }
+  if (typeof(backupDate) === "undefined") {
+    result = {
+      result: false,
+      cause: "Error getting backup date"
+    }
+    return BasicApiHelper(req, res, result, 500);
+  }
+
+  backups[request["gear"]].size = backupSize;
+  backups[request["gear"]].date = backupDate;
+
+  result = {
+    result: true
+  }
+  return BasicApiHelper(req, res, result, retCode);
 }
 
 function RestScheduleBackup (req, res) {
@@ -228,13 +259,16 @@ function RestScheduleBackup (req, res) {
     cronString += " -u " + data.uuid;
     cronString += " -o " + occur + "\n";
 
-    var cronPath = "";
-    cronPath += OSBS.config.site.gearHome + "/";
-    cronPath += "app-root/repo/.openshift/cron/"
-    cronPath += occur + "/" + data.name;
+    var baseCronPath = "";
+    baseCronPath += OSBS.config.site.gearHome + "/";
+    baseCronPath += "app-root/repo/.openshift/cron/"
+    baseCronPath += occur + "/";
+
+    var cronPath = baseCronPath + data.name;
+    var jobsPath = baseCronPath + "jobs.allow";
 
     fs.writeFileSync(cronPath, cronString, null);
-    fs.chmodSync(cronPath, 448); // 448 == 0700 in octal
+    fs.writeFileSync(jobsPath, data.name + "\n", null);
 
     result = {
       result: true,
