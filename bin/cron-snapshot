@@ -78,7 +78,7 @@ curl -XPOST -u "${OSBS_API_USER}:${OSBS_API_PASSWORD} ${OPENSHIFT_OSBS_IP}:${OPE
 
 if [[ "${occur}" == "minutely" ]]
 then
-    rm -f $OPENSHIFT_REPO_DIR/app-root/repo/.openshift/cron/${occur}/${app}
+    sed -i "s/${app}//" $OPENSHIFT_REPO_DIR/app-root/repo/.openshift/cron/${occur}/jobs.allow
 fi
 
 rm -f $OPENSHIFT_DATA_DIR/.${app}-${uuid}-${occur}-running
