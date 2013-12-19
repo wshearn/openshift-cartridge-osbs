@@ -12,8 +12,6 @@ process.argv.forEach(function (val, index, array) {
   }
 });
 
-console.log(JSON.stringify(args, null, 4));
-
 backups[args.gear].date = args.date;
 backups[args.gear].size = args.size;
 
