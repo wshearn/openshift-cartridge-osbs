@@ -214,7 +214,7 @@ function PostScheduleBackup(req, res)
     fs.writeFileSync(cronPath, cronString, null);
     fs.writeFileSync(jobsPath, data.name + "\n", null);
 
-    return res.send("success");fs
+    return res.send("success");
   } catch (err) {
     return res.status(500).send("failure");
   }
