@@ -35,6 +35,15 @@ function getUsedSpace (output) {
   usedSpace = output;
 }
 
+function reloadBackups () {
+  var backupStats = fs.statSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
+  if (backupStats.isFile())
+  {
+    OSBS.backups = require("./backups.json");
+    fs.unlinkSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
+  }
+}
+
 if (OSBS.config.site.on_openshift)
   execute("quota | tail -1 | awk '{print $3 }'", getDiskSpace);
 else
@@ -113,12 +122,7 @@ function RenderAccountStats(req, res)
 // TODO: Handle restore option
 function RenderGearInfo(req, res)
 {
-  var backupStats = fs.statSync(OSBS.site.config.gearHome + "/app-root/data/backups_updated");
-  if (backupStats.isFile())
-  {
-    OSBS.backups = require("./backups.json");
-    fs.unlinkSync(OSBS.site.config.gearHome + "/app-root/data/backups_updated");
-  }
+  reloadBackups();
 
   var gearInfo = OSBS.us.extend(
     {gear: req.params.gear},
@@ -142,12 +146,7 @@ function RenderGearList(req, res)
 // Somewhat done
 function RenderManageBackups(req, res)
 {
-  var backupStats = fs.statSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
-  if (backupStats.isFile())
-  {
-    OSBS.backups = require("./backups.json");
-    fs.unlinkSync(OSBS.site.config.gearHome + "/app-root/data/backups_updated");
-  }
+  reloadBackups();
 
   var data = { data: OSBS.us.extend(OSBS.gears, OSBS.backups) }
   OSBS.menu.handleMenu("Manage Backups");
@@ -227,7 +226,7 @@ function PostGearDelete (req, res) {
 
 function GetGearDownload (req, res) {
   var downloadPath = "";
-  downloadPath += OSBS.site.config.gearHome + "/";
+  downloadPath += OSBS.config.site.gearHome + "/";
   downloadPath += "app-root/data/backups/" + params.date;
   downloadPath += "/" + params.gear + ".tar.gz";
 
