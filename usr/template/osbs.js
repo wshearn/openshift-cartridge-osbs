@@ -200,7 +200,7 @@ function PostScheduleBackup(req, res)
 
     var cronString = "";
     cronString += OSBS.config.site.gearHome;
-    cronString += "/backup/bin/cron-snapshot";
+    cronString += "cron/bin/cron-snapshot";
     cronString += " -g " + data.name;
     cronString += " -u " + data.uuid;
     cronString += " -o " + occur + "\n";

@@ -73,8 +73,8 @@ ssh_cmd+="\"snapshot\""
 # Kids, don't use eval at home.
 eval $(echo $ssh_cmd) > ${SNAPSHOT}
 
-snapshot_size = $(ls -l ${SNAPSHOT} | awk '{ print $5 }')
-node ${OPENSHIFT_OSBS_DIR}/addbackup.js --gear=${gear} --size=${snapshot_size} --date=${snapshot_date}
+snapshot_size="$(ls -l ${SNAPSHOT} | awk '{ print $5 }')"
+node ${OPENSHIFT_OSBS_DIR}/bin/addbackup.js --gear=${gear} --size=${snapshot_size} --date=${snapshot_date}
 
 if [[ "${occur}" == "minutely" ]]
 then
