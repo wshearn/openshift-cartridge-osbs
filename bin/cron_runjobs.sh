@@ -37,7 +37,7 @@ fi
 
 export PATH=$path
 
-CART_CONF_DIR=$OPENSHIFT_CRON_DIR/versions/$OPENSHIFT_CRON_VERSION/configuration
+CART_CONF_DIR=$OPENSHIFT_OSBS_DIR/versions/$OPENSHIFT_OSBS_VERSION/configuration
 
 function log_message() {
    msg=${1-""}
@@ -56,7 +56,7 @@ freq=$1
 source "$CART_CONF_DIR/limits"
 
 # First up check if the cron jobs are enabled.
-if [ ! -f $OPENSHIFT_CRON_DIR/run/jobs.enabled ]; then
+if [ ! -f $OPENSHIFT_OSBS_DIR/run/jobs.enabled ]; then
    # Jobs are not enabled - just exit.
    exit 0
 fi
@@ -80,8 +80,8 @@ if [ -d "$SCRIPTS_DIR" ]; then
               exit 1
           fi
 
-          if [ -f "$OPENSHIFT_CRON_DIR/log/cron.$freq.log" ]; then
-              mv -f "$OPENSHIFT_CRON_DIR/log/cron.$freq.log" "$OPENSHIFT_CRON_DIR/log/cron.$freq.log.1"
+          if [ -f "$OPENSHIFT_OSBS_DIR/log/cron.$freq.log" ]; then
+              mv -f "$OPENSHIFT_OSBS_DIR/log/cron.$freq.log" "$OPENSHIFT_OSBS_DIR/log/cron.$freq.log.1"
           fi
 
           separator=$(seq -s_ 75 | tr -d '[:digit:]')
@@ -102,7 +102,7 @@ if [ -d "$SCRIPTS_DIR" ]; then
               echo $separator
               echo "`date`: END $freq cron run - status=$status"
               echo $separator
-          } >> $OPENSHIFT_CRON_DIR/log/cron.$freq.log 2>&1
+          } >> $OPENSHIFT_OSBS_DIR/log/cron.$freq.log 2>&1
 
       ) 9>&-
 
