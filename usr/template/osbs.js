@@ -113,11 +113,11 @@ function RenderAccountStats(req, res)
 // TODO: Handle restore option
 function RenderGearInfo(req, res)
 {
-  var backupStats = fs.statSync(OSBS.site.gearHome + "/app-root/data/backups_updated");
+  var backupStats = fs.statSync(OSBS.site.config.gearHome + "/app-root/data/backups_updated");
   if (backupStats.isFile())
   {
     OSBS.backups = require("./backups.json");
-    fs.unlinkSync(OSBS.site.gearHome + "/app-root/data/backups_updated");
+    fs.unlinkSync(OSBS.site.config.gearHome + "/app-root/data/backups_updated");
   }
 
   var gearInfo = OSBS.us.extend(
@@ -142,11 +142,11 @@ function RenderGearList(req, res)
 // Somewhat done
 function RenderManageBackups(req, res)
 {
-  var backupStats = fs.statSync(OSBS.site.gearHome + "/app-root/data/backups_updated");
+  var backupStats = fs.statSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
   if (backupStats.isFile())
   {
     OSBS.backups = require("./backups.json");
-    fs.unlinkSync(OSBS.site.gearHome + "/app-root/data/backups_updated");
+    fs.unlinkSync(OSBS.site.config.gearHome + "/app-root/data/backups_updated");
   }
 
   var data = { data: OSBS.us.extend(OSBS.gears, OSBS.backups) }
@@ -227,7 +227,7 @@ function PostGearDelete (req, res) {
 
 function GetGearDownload (req, res) {
   var downloadPath = "";
-  downloadPath += OSBS.config.gearHome + "/";
+  downloadPath += OSBS.site.config.gearHome + "/";
   downloadPath += "app-root/data/backups/" + params.date;
   downloadPath += "/" + params.gear + ".tar.gz";
 
