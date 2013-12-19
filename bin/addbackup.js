@@ -15,15 +15,15 @@ process.argv.forEach(function (val, index, array) {
   }
 });
 
-if (typeof(backups[args.gear]) == "undefined")
+if (typeof(backups[args.gear].backups) == "undefined")
 {
-  backups[args.gear] = [];
+  backups[args.gear].backups = [];
 }
 
-var num = backups[args.gear].length;
-backups[args.gear][num] = {};
-backups[args.gear][num].date = args.date;
-backups[args.gear][num].size = args.size;
+var num = backups[args.gear].backups.length;
+backups[args.gear].backups[num] = {};
+backups[args.gear].backups[num].date = args.date;
+backups[args.gear].backups[num].size = args.size;
 
 fs.writeFileSync(backupstring, JSON.stringify(backups, null, 4), 'UTF-8');
 fs.writeFileSync(updated_flag, "", 'UTF-8');
