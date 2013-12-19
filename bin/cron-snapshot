@@ -78,7 +78,7 @@ node ${OPENSHIFT_OSBS_DIR}/bin/addbackup.js --gear=${gear} --size=${snapshot_siz
 
 if [[ "${occur}" == "minutely" ]]
 then
-    sed -i "s/${app}//" $OPENSHIFT_REPO_DIR/app-root/repo/.openshift/cron/${occur}/jobs.allow
+    sed -i "s/${app}//" $OPENSHIFT_REPO_DIR/.openshift/cron/${occur}/jobs.allow
 fi
 
 rm -f $OPENSHIFT_DATA_DIR/.${app}-${uuid}-${occur}-running

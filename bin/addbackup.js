@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 var backupstring = process.env.OPENSHIFT_REPO_DIR + "backups.json";
 var updated_flag = process.env.OPENSHIFT_DATA_DIR + "backups_updated";
 var backups = require(backupstring);
