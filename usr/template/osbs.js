@@ -44,8 +44,7 @@ function reloadBackups () {
       OSBS.backups = require("./backups.json");
       fs.unlinkSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
     }
-  }
-  catch {}
+  } catch(e) {}
 }
 
 if (OSBS.config.site.on_openshift)
