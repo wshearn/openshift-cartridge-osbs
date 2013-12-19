@@ -36,12 +36,16 @@ function getUsedSpace (output) {
 }
 
 function reloadBackups () {
-  var backupStats = fs.statSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
-  if (backupStats.isFile())
+  try 
   {
-    OSBS.backups = require("./backups.json");
-    fs.unlinkSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
+    var backupStats = fs.statSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
+    if (backupStats.isFile())
+    {
+      OSBS.backups = require("./backups.json");
+      fs.unlinkSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
+    }
   }
+  catch {}
 }
 
 if (OSBS.config.site.on_openshift)
