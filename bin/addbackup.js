@@ -7,21 +7,17 @@ var backups = require(backupstring);
 var args = {};
 
 process.argv.forEach(function (val, index, array) {
-  arg = val.split("=");
-  if (arg[0].match(/^--/))
+  if (val.match(/^--/))
   {
+    arg = val.split("=");
     arg[0]=arg[0].replace("--", '');
     args[arg[0]] = arg[1];
   }
 });
 
-if (typeof(backups[args.gear].backups) == "undefined")
-{
-  backups[args.gear].backups = [];
-}
-
 var num = backups[args.gear].backups.length;
 backups[args.gear].backups[num] = {};
+
 backups[args.gear].backups[num].date = args.date;
 backups[args.gear].backups[num].size = args.size;
 
