@@ -34,31 +34,6 @@ function check_hot_deploy_marker() {
   fi
 }
 
-function print_missing_package_json_warning() {
-       cat <<DEPRECATED
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  It is highly recommended that you add a package.json
-  file to your application.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-DEPRECATED
-}
-
-function print_deprecation_warning() {
-       cat <<DEPRECATED
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  The use of deplist.txt is being deprecated and will soon
-  go away. For the short term, we will continue to support
-  installing the Node modules specified in the deplist.txt
-  file. But please be aware that this will soon go away.
-
-  It is highly recommended that you use the package.json
-  file to specify dependencies on other Node modules.
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-DEPRECATED
-}
-
 function is_node_module_installed() {
     module_name=${1:-""}
     if [ -n "$module_name" ]; then
@@ -126,14 +101,7 @@ function start() {
         fi
     } >> $logf
 
-
-    if [ -f "$OPENSHIFT_REPO_DIR/package.json" ]; then
-        script_n_opts="$(get_main_script_from_package_json)"
-    else
-        #  Backward compatibility.
-        print_missing_package_json_warning
-        script_n_opts="$node_opts $node_app $node_app_args"
-    fi
+    script_n_opts="$(get_main_script_from_package_json)"
 
     # TODO: supervisor resource usage fixed in version 0.5.4
     nodejs_context "nohup supervisor -e 'node|js|coffee' -p ${OPENSHIFT_OSBS_POLL_INTERVAL:-1000} -- $script_n_opts  >> $logf 2>&1 &"
@@ -152,6 +120,8 @@ function start() {
     else
         error "Application '$OPENSHIFT_APP_NAME' failed to start" 1>&2 1
     fi
+
+    rm -f ${OPENSHIFT_OSBS_DIR}/run/gearstopped
 }  #  End of function  start.
 
 
@@ -194,6 +164,8 @@ function stop() {
         error "Warning: Application '$OPENSHIFT_APP_NAME' Node server exists without a pid file.  Use force-stop to kill." 141
       fi
     fi
+
+    touch ${OPENSHIFT_OSBS_DIR}/run/gearstopped
 }  #  End of function stop.
 
 function restart() {
@@ -244,20 +216,6 @@ function build() {
 
     #  Newer versions of Node set tmp to $HOME/tmp, which is not available
     nodejs_context "npm config set tmp $OPENSHIFT_TMP_DIR"
-
-    if [ -f "${OPENSHIFT_REPO_DIR}"/deplist.txt ]; then
-        mods=$(perl -ne 'print if /^\s*[^#\s]/' "${OPENSHIFT_REPO_DIR}"/deplist.txt)
-        [ -n "$mods" ]  &&  print_deprecation_warning
-        for m in $mods; do
-            echo "Checking npm module: $m"
-            echo
-            if is_node_module_installed "$m"; then
-                (cd "${OPENSHIFT_OSBS_DIR}"; nodejs_context "npm update '$m'")
-            else
-                (cd "${OPENSHIFT_OSBS_DIR}"; nodejs_context "npm install '$m'")
-            fi
-        done
-    fi
 
     # Workaround for failure in npm install when a package in package.json
     # points to a git commit.

@@ -1,15 +1,16 @@
 ---
-Name: backup
+Name: cron
+Vendor: whearn
 Cartridge-Short-Name: OSBS
 Display-Name: OSBS 0.1
 Source-Url: https://github.com/wshearn/openshift-cartridge-osbs.git
 Description: OSBS is a gear backup solution for OpenShift.
+Architecture: noarch
 Version: '0.1'
 Versions:
 - '0.1'
-License: APL 2.0 License
+License: APL 2.0
 License-Url: http://www.apache.org/licenses/LICENSE-2.0.html
-Vendor: www.openshift.com
 Website: http://www.openshift.com/
 Cartridge-Version: 0.0.1
 Compatible-Versions: []
@@ -19,6 +20,9 @@ Categories:
 - javascript
 - nodejs
 - web_framework
+- scheduler-service
+- cron-service
+- cron-5.0
 Help-Topics:
   Developer Center: https://www.openshift.com/developers
 Cart-Data:
@@ -65,6 +69,8 @@ Cart-Data:
   Type: environment
   Description: API url
 Provides:
+- cron-5.0
+- cron
 - osbs-0.1
 - osbs
 Scaling:
@@ -77,7 +83,13 @@ Publishes:
     Type: NET_TCP:httpd-proxy-info
   publish-gear-endpoint:
     Type: NET_TCP:gear-endpoint-info
+  get-job-listing:
+    Type: STRING:jobs
 Subscribes:
+  add-job:
+    Type: STRING:job
+  remove-job:
+    Type: STRING:job
   set-env:
     Type: ENV:*
     Required: false
