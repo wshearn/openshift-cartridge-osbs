@@ -113,6 +113,13 @@ function RenderAccountStats(req, res)
 // TODO: Handle restore option
 function RenderGearInfo(req, res)
 {
+  var backupStats = fs.statSync(OSBS.site.gearHome + "/app-root/data/backups_updated");
+  if (backupStats.isFile())
+  {
+    OSBS.backups = require("./backups.json");
+    fs.unlinkSync(OSBS.site.gearHome + "/app-root/data/backups_updated");
+  }
+
   var gearInfo = OSBS.us.extend(
     {gear: req.params.gear},
     OSBS.backups[req.params.gear]
@@ -135,6 +142,13 @@ function RenderGearList(req, res)
 // Somewhat done
 function RenderManageBackups(req, res)
 {
+  var backupStats = fs.statSync(OSBS.site.gearHome + "/app-root/data/backups_updated");
+  if (backupStats.isFile())
+  {
+    OSBS.backups = require("./backups.json");
+    fs.unlinkSync(OSBS.site.gearHome + "/app-root/data/backups_updated");
+  }
+
   var data = { data: OSBS.us.extend(OSBS.gears, OSBS.backups) }
   OSBS.menu.handleMenu("Manage Backups");
   var title = base_title + " - Manage Backups";

@@ -74,7 +74,7 @@ ssh_cmd+="\"snapshot\""
 eval $(echo $ssh_cmd) > ${SNAPSHOT}
 
 snapshot_size = $(ls -l ${SNAPSHOT} | awk '{ print $5 }')
-curl -XPOST -u "${OSBS_API_USER}:${OSBS_API_PASSWORD} ${OPENSHIFT_OSBS_IP}:${OPENSHIFT_OSBS_PORT}/api/addbackup?gear=${app}&size=${snapshot_size}&date=\"${snapshot_date}\""
+node ${OPENSHIFT_OSBS_DIR}/addbackup.js --gear=${gear} --size=${snapshot_size} --date=${snapshot_date}
 
 if [[ "${occur}" == "minutely" ]]
 then
