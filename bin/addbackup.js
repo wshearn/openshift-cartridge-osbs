@@ -15,11 +15,17 @@ process.argv.forEach(function (val, index, array) {
   }
 });
 
-var num = backups[args.gear].backups.length;
-backups[args.gear].backups[num] = {};
+args.size = parseInt(args.size);
 
-backups[args.gear].backups[num].date = args.date;
-backups[args.gear].backups[num].size = args.size;
+var backupData = {
+  date: args.date,
+  local: true,
+  remote: false,
+  size: args.size
+}
+
+var num = backups[args.gear].backups.length;
+backups[args.gear].backups[num] = backupData;
 
 fs.writeFileSync(backupstring, JSON.stringify(backups, null, 4), 'UTF-8');
 fs.writeFileSync(updated_flag, "", 'UTF-8');

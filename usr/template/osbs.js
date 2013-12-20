@@ -233,7 +233,7 @@ function GetGearDownload (req, res) {
   downloadPath += "app-root/data/backups/" + params.date;
   downloadPath += "/" + params.gear + ".tar.gz";
 
-  var downloadName = params.gear + "-" + params.date.replace("/", "-") + ".tar.gz"
+  var downloadName = params.gear + "_" + params.date.replace(/\//g, "-") + ".tar.gz"
 
   res.download(downloadPath, downloadName);
 }
