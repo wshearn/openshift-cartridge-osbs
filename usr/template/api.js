@@ -64,8 +64,7 @@ function ApiParseReq (req, res) {
   return result;
 }
 
-function RestAddGear (req, res)
-{
+function RestAddGear (req, res) {
   var result = {};
   var status = 200;
 
@@ -139,8 +138,8 @@ function RestDelGear (req, res) {
   var request = ApiParseReq(req, res);
   var result = {};
 
-  if ((OSBS.backups[request.name].backups &&
-      OSBS.backups[request.name].backups.length > 0) &&
+  if (OSBS.backups[request.name].backups &&
+      OSBS.backups[request.name].backups.length > 0 &&
       request.force == false) {
     result["result"] = false;
     result["cause"]  = "This gear still has backups"
@@ -253,16 +252,16 @@ function RestScheduleBackup (req, res) {
       occur = occurrence.toLowerCase();
 
     var cronString = "";
-    cronString += OSBS.config.site.gearHome;
-    cronString += "cron/bin/cron-snapshot";
-    cronString += " -g " + data.name;
-    cronString += " -u " + data.uuid;
-    cronString += " -o " + occur + "\n";
+        cronString += OSBS.config.site.gearHome;
+        cronString += "cron/bin/cron-snapshot";
+        cronString += " -g " + data.name;
+        cronString += " -u " + data.uuid;
+        cronString += " -o " + occur + "\n";
 
     var baseCronPath = "";
-    baseCronPath += OSBS.config.site.gearHome + "/";
-    baseCronPath += "app-root/repo/.openshift/cron/"
-    baseCronPath += occur + "/";
+        baseCronPath += OSBS.config.site.gearHome + "/";
+        baseCronPath += "app-root/repo/.openshift/cron/"
+        baseCronPath += occur + "/";
 
     var cronPath = baseCronPath + data.name;
     var jobsPath = baseCronPath + "jobs.allow";
@@ -303,21 +302,20 @@ app.post('/api/getgear', authenticate, RestGetGear);
 app.post('/api/getgears', authenticate, RestGetGears);
 app.post('/api/getbackups', authenticate, RestGetBackups);
 app.post('/api/schedulebackup', authenticate, RestScheduleBackup);
+app.post('/api/gearstarted', authenticate, function(){});
+app.post('/api/gearstopped', authenticate, function(){});
 app.post('/api/unschedulebackup', authenticate, RestUnscheduleBackup);
 
 // AUTH crap
-function deserializeUser (id, done)
-{
+function deserializeUser (id, done) {
   findById(id, done, null);
 }
 
-function serializeUser (user, done)
-{
+function serializeUser (user, done) {
   done(null, user.id)
 }
 
-function findById(id, done, err)
-{
+function findById(id, done, err) {
   var idx = id - 1;
   if (OSBS.users[idx])
     done(null, OSBS.users[idx]);
@@ -325,8 +323,7 @@ function findById(id, done, err)
     new error('User ' + id + ' does not exist');
 }
 
-function checkAuth (username, password, done)
-{
+function checkAuth (username, password, done) {
   for (var i = 0, len = OSBS.api_users.length; i < len; i++) {
     if (OSBS.api_users[i].username === username &&
         OSBS.api_users[i].password === password) {

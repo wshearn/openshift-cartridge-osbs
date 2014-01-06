@@ -24,8 +24,13 @@ var backupData = {
   size: args.size
 }
 
-var num = backups[args.gear].backups.length;
-backups[args.gear].backups[num] = backupData;
+if (typeof(backups[args.gear]) === "undefined") {
+  backups[args.gear] = {
+    backups: []
+  };
+}
+
+backups[args.gear].backups[backups[args.gear].backups.length] = backupData;
 
 fs.writeFileSync(backupstring, JSON.stringify(backups, null, 4), 'UTF-8');
 fs.writeFileSync(updated_flag, "", 'UTF-8');

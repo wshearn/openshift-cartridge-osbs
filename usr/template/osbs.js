@@ -73,36 +73,32 @@ function RenderHelper (template, title, subHeader, req, res, otherItems)
 
 // Routes
 // We want <site url>/ to redirect to /accountstats
-function RenderIndex (req, res)
-{
+function RenderIndex (req, res) {
   res.redirect('/accountstats');
 };
 
 // Logout route is simple, request.logout then goto /
-function RenderLogout (req, res)
-{
+function RenderLogout (req, res) {
   req.logout();
   res.redirect('/');
 }
 
 // Render the login page. See app.post('/login') at the bottom for magic
-function RenderLogin (req, res)
-{
+function RenderLogin (req, res) {
   OSBS.menu.handleMenu("Index");
   var title = base_title + " - Login";
   RenderHelper('login', title, 'Please login to manage your backups', req, res);
 };
 
 // Nothing special here yet...
-function RenderAccountStats(req, res)
-{
+function RenderAccountStats(req, res) {
   var graphData = [];
 
   for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
     var numOfBackups = 0;
 
-    if (typeof(OSBS.backups[OSBS.gears.gears[i].name]["backups"]) != "undefined"
-        && OSBS.backups[OSBS.gears.gears[i].name]["backups"].length > 0)
+    if (typeof(OSBS.backups[OSBS.gears.gears[i].name]["backups"]) != "undefined" &&
+        OSBS.backups[OSBS.gears.gears[i].name]["backups"].length > 0)
       numOfBackups = OSBS.backups[OSBS.gears.gears[i].name]["backups"].length;
 
     graphData[graphData.length] = {
@@ -123,8 +119,7 @@ function RenderAccountStats(req, res)
 }
 
 // TODO: Handle restore option
-function RenderGearInfo(req, res)
-{
+function RenderGearInfo(req, res) {
   reloadBackups();
 
   var gearInfo = OSBS.us.extend(
@@ -138,8 +133,7 @@ function RenderGearInfo(req, res)
 }
 
 // Stables, that was easy
-function RenderGearList(req, res)
-{
+function RenderGearList(req, res) {
   OSBS.menu.handleMenu("Gear List");
   var title = base_title + " - Gear List";
   RenderHelper('gearList', title, '', req, res, OSBS.gears);
@@ -147,8 +141,7 @@ function RenderGearList(req, res)
 
 // TODO: Handle Delete and add some pretty graphs and shit..
 // Somewhat done
-function RenderManageBackups(req, res)
-{
+function RenderManageBackups(req, res) {
   reloadBackups();
 
   var data = { data: OSBS.us.extend(OSBS.gears, OSBS.backups) }
@@ -164,23 +157,20 @@ function RenderGearDelete (req, res) {
 }
 
 // Done
-function RenderScheduleBackup(req, res)
-{
+function RenderScheduleBackup(req, res) {
   OSBS.menu.handleMenu("Schedule Backup");
   var title = base_title + " - Schedule Backup";
   RenderHelper('scheduleBackup', title, '', req, res, OSBS.gears);
 }
 
 // TODO
-function RenderApiDocs(req, res)
-{
+function RenderApiDocs(req, res) {
   OSBS.menu.handleMenu("API Docs");
   var title = base_title + " - API Docs";
   RenderHelper('apidocs', title, '', req, res);
 }
 
-function PostScheduleBackup(req, res)
-{
+function PostScheduleBackup(req, res) {
   try {
     var data = {};
     for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
@@ -199,16 +189,16 @@ function PostScheduleBackup(req, res)
       occur = req.body["occurrence"].toLowerCase();
 
     var cronString = "";
-    cronString += OSBS.config.site.gearHome;
-    cronString += "cron/bin/cron-snapshot";
-    cronString += " -g " + data.name;
-    cronString += " -u " + data.uuid;
-    cronString += " -o " + occur + "\n";
+        cronString += OSBS.config.site.gearHome;
+        cronString += "cron/bin/cron-snapshot";
+        cronString += " -g " + data.name;
+        cronString += " -u " + data.uuid;
+        cronString += " -o " + occur + "\n";
 
     var baseCronPath = "";
-    baseCronPath += OSBS.config.site.gearHome + "/";
-    baseCronPath += "app-root/repo/.openshift/cron/"
-    baseCronPath += occur + "/";
+        baseCronPath += OSBS.config.site.gearHome + "/";
+        baseCronPath += "app-root/repo/.openshift/cron/"
+        baseCronPath += occur + "/";
 
     var cronPath = baseCronPath + data.name;
     var jobsPath = baseCronPath + "jobs.allow";
@@ -254,18 +244,15 @@ app.post('/downloadbackup/:gear/:date', ensureAuthenticated, GetGearDownload);
 app.post('/login', authenticate, RenderIndex);
 
 // AUTH Crap
-function deserializeUser (id, done)
-{
+function deserializeUser (id, done) {
   findById(id, done, null);
 }
 
-function serializeUser (user, done)
-{
+function serializeUser (user, done) {
   done(null, user.id)
 }
 
-function findById(id, done, err)
-{
+function findById(id, done, err) {
   var idx = id - 1;
   if (OSBS.users[idx])
     done(null, OSBS.users[idx]);
@@ -273,8 +260,7 @@ function findById(id, done, err)
     new error('User ' + id + ' does not exist');
 }
 
-function checkAuth (username, password, done)
-{
+function checkAuth (username, password, done) {
   for (var i = 0, len = OSBS.users.length; i < len; i++) {
     if (OSBS.users[i].username === username &&
         OSBS.users[i].password === password) {
@@ -284,8 +270,7 @@ function checkAuth (username, password, done)
   return done(null, false, { message: 'Unknown user or password' });
 }
 
-function authenticate (req, res, next)
-{
+function authenticate (req, res, next) {
   passport.authenticate(
     'local',
     {
@@ -296,8 +281,7 @@ function authenticate (req, res, next)
   return next();
 }
 
-function ensureAuthenticated(req, res, next)
-{
+function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated())
     return next();
   res.redirect('/login');

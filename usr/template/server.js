@@ -61,8 +61,7 @@ app.use(api);
 server.listen(app.get('port'), app.get('ip'));
 server.on('listening', serverListening);
 
-function serverListening ()
-{
+function serverListening () {
   console.log('Openshift Backup Service<%s mode> started on port %s at %s',
     OSBS.config.site.env,
     server.address().port,
