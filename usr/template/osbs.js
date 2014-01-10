@@ -172,9 +172,11 @@ function RenderApiDocs(req, res) {
 
 function PostScheduleBackup(req, res) {
   try {
+    var gear;
     var data = {};
     for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
       if (OSBS.gears.gears[i].name === req.body["gear"]) {
+        gear = i;
         data = OSBS.gears.gears[i];
         break;
       }
@@ -186,7 +188,10 @@ function PostScheduleBackup(req, res) {
     if (req.body["occurrence"] == "Once")
       occur = "minutely"
     else
+    {
       occur = req.body["occurrence"].toLowerCase();
+      data.backups[occur] = true;
+    }
 
     var cronString = "";
         cronString += OSBS.config.site.gearHome;
@@ -205,6 +210,8 @@ function PostScheduleBackup(req, res) {
 
     fs.writeFileSync(cronPath, cronString, null);
     fs.writeFileSync(jobsPath, data.name + "\n", null);
+
+    OSBS.gears.gears[gear] = data;
 
     return res.send("success");
   } catch (err) {

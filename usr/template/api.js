@@ -94,7 +94,12 @@ function RestAddGear (req, res) {
 
     OSBS.gears.gears[OSBS.gears.gears.length] = {
       name: result.gear,
-      uuid: result.uuid
+      uuid: result.uuid,
+      backups: {
+        daily:   false,
+        weekly:  false,
+        monthly: false
+      }
     };
 
     fs.writeFileSync(
@@ -234,9 +239,11 @@ function RestScheduleBackup (req, res) {
   }
 
   try {
+    var gear;
     var data = {};
     for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
       if (OSBS.gears.gears[i].name === request["gear"]) {
+        gear = i;
         data = OSBS.gears.gears[i];
         break;
       }
@@ -249,7 +256,10 @@ function RestScheduleBackup (req, res) {
     if (occurrence.toLowerCase() === "once")
       occur = "minutely"
     else
+    {
       occur = occurrence.toLowerCase();
+      data.backups[occur] = true;
+    }
 
     var cronString = "";
         cronString += OSBS.config.site.gearHome;
@@ -274,6 +284,8 @@ function RestScheduleBackup (req, res) {
       occurrence: occurrence,
       gear: request["gear"]
     }
+
+    OSBS.gears.gears[gear] = data;
   } catch (err) {
     result = {
       result: false,
@@ -286,13 +298,24 @@ function RestScheduleBackup (req, res) {
 }
 
 function RestUnscheduleBackup (req, res) {
-  BasicApiHelper(req, res, { TODO : "I need to do this" })
+  return BasicApiHelper(req, res, { TODO : "I need to do this" })
 }
 
 function RestApiHelp (req, res) {
-  BasicApiHelper(req, res, { TODO : "I need to do this" })
+  return BasicApiHelper(req, res, { TODO : "I need to do this" })
 }
 
+function RestGearStarted (req, res) {
+  return BasicApiHelper(req, res, { TODO : "I need to do this" })
+}
+
+function RestGearStopped (req, res) {
+  var request = ApiParseReq(req, res);
+  var result = {};
+  var retCode = 200;
+
+ return BasicApiHelper(req, res, { TODO : "I need to do this" }) 
+}
 
 // TODO
 app.post('/api/help', RestApiHelp);
@@ -302,8 +325,8 @@ app.post('/api/getgear', authenticate, RestGetGear);
 app.post('/api/getgears', authenticate, RestGetGears);
 app.post('/api/getbackups', authenticate, RestGetBackups);
 app.post('/api/schedulebackup', authenticate, RestScheduleBackup);
-app.post('/api/gearstarted', authenticate, function(){});
-app.post('/api/gearstopped', authenticate, function(){});
+app.post('/api/gearstarted', authenticate, RestGearStarted);
+app.post('/api/gearstopped', authenticate, RestGearStopped);
 app.post('/api/unschedulebackup', authenticate, RestUnscheduleBackup);
 
 // AUTH crap
