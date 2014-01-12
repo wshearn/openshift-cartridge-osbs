@@ -17,6 +17,12 @@ passport.deserializeUser(deserializeUser);
 
 var authenticate = passport.authenticate('basic', {session: false});
 
+function execute(command, callback){
+    exec(command, function(error, stdout, stderr){
+      callback(stdout.replace(/\n/, ''));
+    });
+};
+
 function BasicApiHelper (req, res, result, status) {
   var httpStatus  = 200;
   var prettyPrint = false;
@@ -306,6 +312,19 @@ function RestApiHelp (req, res) {
 }
 
 function RestGearStarted (req, res) {
+  var request = ApiParseReq(req, res);
+  var result  = {};
+  var retCode = 200;
+
+  if (OSBS.gears.gears[request.gear].backups.daily == true)
+      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+
+  if (OSBS.gears.gears[request.gear].backups.weekly == true)
+      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+
+  if (OSBS.gears.gears[reuest.gear].backups.monthly == true)
+      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
+
   return BasicApiHelper(req, res, { TODO : "I need to do this" })
 }
 
@@ -314,7 +333,16 @@ function RestGearStopped (req, res) {
   var result  = {};
   var retCode = 200;
 
- return BasicApiHelper(req, res, { TODO : "I need to do this" })
+  if (OSBS.gears.gears[request.gear].backups.daily == true)
+      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+
+  if (OSBS.gears.gears[request.gear].backups.weekly == true)
+      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+
+  if (OSBS.gears.gears[request.gear].backups.monthly == true)
+      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
+
+  return BasicApiHelper(req, res, { TODO : "I need to do this" })
 }
 
 // TODO
