@@ -34,17 +34,17 @@ try {
 OSBS.config.system.siteTitle = "OSBS";
 
 var express = require('express'),
-    http = require('http'),
-    path = require('path'),
-    osbs = require('./osbs.js'),
-    api  = require('./api.js');
+    http    = require('http'),
+    path    = require('path'),
+    osbs    = require('./osbs.js'),
+    api     = require('./api.js');
 
-var app = express(),
+var app    = express(),
     server = http.createServer(app);
 
 app.locals.pretty = true;
-app.set('ip', OSBS.config.web.host);
-app.set('port', OSBS.config.web.port);
+app.set('ip'   , OSBS.config.web.host);
+app.set('port' , OSBS.config.web.port);
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser());

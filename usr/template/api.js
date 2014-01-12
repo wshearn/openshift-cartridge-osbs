@@ -1,9 +1,9 @@
-var fs = require('fs'),
-    express = require('express'),
-    passport = require('passport'),
+var fs            = require('fs'),
+    express       = require('express'),
+    passport      = require('passport'),
     BasicStrategy = require('passport-http').BasicStrategy,
-    flash = require('connect-flash'),
-    http = require('http');
+    flash         = require('connect-flash'),
+    http          = require('http');
 
 var app = module.exports = express();
 
@@ -18,10 +18,10 @@ passport.deserializeUser(deserializeUser);
 var authenticate = passport.authenticate('basic', {session: false});
 
 function BasicApiHelper (req, res, result, status) {
-  var httpStatus = 200;
+  var httpStatus  = 200;
   var prettyPrint = false;
 
-  if ((req.body["pretty"] && req.body["pretty"] == 'true') || 
+  if ((req.body["pretty"] && req.body["pretty"] == 'true') ||
       (req.query["pretty"] && req.query["pretty"] == 'true'))
       prettyPrint = true;
 
@@ -41,7 +41,7 @@ function BasicApiHelper (req, res, result, status) {
 function ApiParseReq (req, res) {
   var result = {};
 
-  if ((req.body["force"] && req.body["force"] == 'true') || 
+  if ((req.body["force"] && req.body["force"] == 'true') ||
       (req.query["force"] && req.query["force"] == 'true'))
     result["force"] = true;
   else
@@ -107,7 +107,7 @@ function RestAddGear (req, res) {
       JSON.stringify(OSBS.gears, null, 4),
       'UTF-8'
     );
-    
+
     fs.writeFileSync(
       "./backups.json",
       JSON.stringify(OSBS.backups, null, 4),
@@ -141,11 +141,11 @@ function RestGetBackups (req, res) {
 
 function RestDelGear (req, res) {
   var request = ApiParseReq(req, res);
-  var result = {};
+  var result  = {};
 
   if (OSBS.backups[request.name].backups &&
       OSBS.backups[request.name].backups.length > 0 &&
-      request.force == false) {
+      request.force  == false) {
     result["result"] = false;
     result["cause"]  = "This gear still has backups"
     return BasicApiHelper(req, res, result, 500);
@@ -159,7 +159,7 @@ function RestDelGear (req, res) {
         }
     );
 
-    OSBS.backups[request.name] = null;
+    OSBS.backups[request.name]     = null;
     OSBS.gears.gears[request.name] = null;
 
     fs.writeFileSync(
@@ -180,7 +180,7 @@ function RestDelGear (req, res) {
 
 function RestGetGear (req, res) {
   var request = ApiParseReq(req, res);
-  var result = {};
+  var result  = {};
 
   result["gear"] = OSBS.us.find(
     OSBS.gears.gears,
@@ -194,23 +194,23 @@ function RestGetGear (req, res) {
 }
 
 function RestAddBackup (req, res) {
-  var request = ApiParseReq(req, res);
-  var result = {};
-  var retCode = 200;
+  var request    = ApiParseReq(req, res);
+  var result     = {};
+  var retCode    = 201;
   var backupSize = GetArgument(req, "size");
   var backupDate = GetArgument(req, "date");
 
   if (typeof(backupSize) === "undefined") {
     result = {
-      result: false,
-      cause: "Error getting backup size"
+      result : false,
+      cause  : "Error getting backup size"
     }
     return BasicApiHelper(req, res, result, 500);
   }
   if (typeof(backupDate) === "undefined") {
     result = {
-      result: false,
-      cause: "Error getting backup date"
+      result : false,
+      cause  : "Error getting backup date"
     }
     return BasicApiHelper(req, res, result, 500);
   }
@@ -225,9 +225,9 @@ function RestAddBackup (req, res) {
 }
 
 function RestScheduleBackup (req, res) {
-  var request = ApiParseReq(req, res);
-  var result = {};
-  var retCode = 200;
+  var request    = ApiParseReq(req, res);
+  var result     = {};
+  var retCode    = 200;
   var occurrence = GetArgument(req, "occurrence");
 
   if (typeof(occurence) === "undefined" ) {
@@ -261,17 +261,17 @@ function RestScheduleBackup (req, res) {
       data.backups[occur] = true;
     }
 
-    var cronString = "";
-        cronString += OSBS.config.site.gearHome;
-        cronString += "cron/bin/cron-snapshot";
-        cronString += " -g " + data.name;
-        cronString += " -u " + data.uuid;
-        cronString += " -o " + occur + "\n";
+    var cronString   = "";
+        cronString + = OSBS.config.site.gearHome;
+        cronString + = "cron/bin/cron-snapshot";
+        cronString + = " -g " + data.name;
+        cronString + = " -u " + data.uuid;
+        cronString + = " -o " + occur + "\n";
 
-    var baseCronPath = "";
-        baseCronPath += OSBS.config.site.gearHome + "/";
-        baseCronPath += "app-root/repo/.openshift/cron/"
-        baseCronPath += occur + "/";
+    var baseCronPath   = "";
+        baseCronPath + = OSBS.config.site.gearHome + "/";
+        baseCronPath + = "app-root/repo/.openshift/cron/"
+        baseCronPath + = occur + "/";
 
     var cronPath = baseCronPath + data.name;
     var jobsPath = baseCronPath + "jobs.allow";
@@ -280,16 +280,16 @@ function RestScheduleBackup (req, res) {
     fs.writeFileSync(jobsPath, data.name + "\n", null);
 
     result = {
-      result: true,
-      occurrence: occurrence,
-      gear: request["gear"]
+      result     : true,
+      occurrence : occurrence,
+      gear       : request["gear"]
     }
 
     OSBS.gears.gears[gear] = data;
   } catch (err) {
     result = {
-      result: false,
-      cause: err
+      result : false,
+      cause  : err
     }
 
     retCode = 500;
@@ -311,23 +311,23 @@ function RestGearStarted (req, res) {
 
 function RestGearStopped (req, res) {
   var request = ApiParseReq(req, res);
-  var result = {};
+  var result  = {};
   var retCode = 200;
 
- return BasicApiHelper(req, res, { TODO : "I need to do this" }) 
+ return BasicApiHelper(req, res, { TODO : "I need to do this" })
 }
 
 // TODO
-app.post('/api/help', RestApiHelp);
-app.post('/api/addgear', authenticate, RestAddGear);
-app.post('/api/delgear', authenticate, RestDelGear);
-app.post('/api/getgear', authenticate, RestGetGear);
-app.post('/api/getgears', authenticate, RestGetGears);
-app.post('/api/getbackups', authenticate, RestGetBackups);
-app.post('/api/schedulebackup', authenticate, RestScheduleBackup);
-app.post('/api/gearstarted', authenticate, RestGearStarted);
-app.post('/api/gearstopped', authenticate, RestGearStopped);
-app.post('/api/unschedulebackup', authenticate, RestUnscheduleBackup);
+app.post('/api/help'             , RestApiHelp);
+app.post('/api/addgear'          , authenticate  , RestAddGear);
+app.post('/api/delgear'          , authenticate  , RestDelGear);
+app.post('/api/getgear'          , authenticate  , RestGetGear);
+app.post('/api/getgears'         , authenticate  , RestGetGears);
+app.post('/api/getbackups'       , authenticate  , RestGetBackups);
+app.post('/api/schedulebackup'   , authenticate  , RestScheduleBackup);
+app.post('/api/gearstarted'      , authenticate  , RestGearStarted);
+app.post('/api/gearstopped'      , authenticate  , RestGearStopped);
+app.post('/api/unschedulebackup' , authenticate  , RestUnscheduleBackup);
 
 // AUTH crap
 function deserializeUser (id, done) {

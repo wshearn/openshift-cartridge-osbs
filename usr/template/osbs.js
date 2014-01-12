@@ -1,12 +1,12 @@
 var base_title = "OpenShift Backup Service"
 
-var fs = require('fs'),
-    express = require('express'),
-    passport = require('passport'),
+var fs            = require('fs'),
+    express       = require('express'),
+    passport      = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
-    flash = require('connect-flash'),
-    exec = require('child_process').exec,
-    http = require('http');
+    flash         = require('connect-flash'),
+    exec          = require('child_process').exec,
+    http          = require('http');
 
 var app = module.exports = express();
 app.use(flash());
@@ -36,7 +36,7 @@ function getUsedSpace (output) {
 }
 
 function reloadBackups () {
-  try 
+  try
   {
     var backupStats = fs.statSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
     if (backupStats.isFile())
@@ -63,10 +63,10 @@ else
 function RenderHelper (template, title, subHeader, req, res, otherItems)
 {
   var baseItems = {
-    title: title,
-    subHeader: subHeader,
-    index: OSBS.menu.items,
-    loggedIn: req.isAuthenticated(),
+    title     : title,
+    subHeader : subHeader,
+    index     : OSBS.menu.items,
+    loggedIn  : req.isAuthenticated(),
   };
   res.render(template, OSBS.us.extend(baseItems, otherItems));
 }
@@ -102,15 +102,15 @@ function RenderAccountStats(req, res) {
       numOfBackups = OSBS.backups[OSBS.gears.gears[i].name]["backups"].length;
 
     graphData[graphData.length] = {
-      label: OSBS.gears.gears[i].name,
-      data: numOfBackups
+      label : OSBS.gears.gears[i].name,
+      data  : numOfBackups
     }
   };
 
   var data = {
-    usedSpace: usedSpace,
-    diskSpace: diskSpace,
-    graphData: graphData
+    usedSpace : usedSpace,
+    diskSpace : diskSpace,
+    graphData : graphData
   }
 
   OSBS.menu.handleMenu("Account Stats");
@@ -126,7 +126,7 @@ function RenderGearInfo(req, res) {
     {gear: req.params.gear},
     OSBS.backups[req.params.gear]
   );
-  
+
   OSBS.menu.handleMenu("Gear Info");
   var title = base_title + " - Gear Info";
   RenderHelper('gearInfo', title, '', req, res, gearInfo);
@@ -152,7 +152,10 @@ function RenderManageBackups(req, res) {
 
 function RenderGearDelete (req, res) {
   var title = base_title + " - Delete Gear Backup";
-  var data = {gear: req.params.gear, date: req.params.date }
+  var data = {
+      gear : req.params.gear,
+      date : req.params.date
+  }
   RenderHelper('deletegearbackup', title, '', req, res, data);
 }
 
@@ -193,17 +196,17 @@ function PostScheduleBackup(req, res) {
       data.backups[occur] = true;
     }
 
-    var cronString = "";
-        cronString += OSBS.config.site.gearHome;
-        cronString += "cron/bin/cron-snapshot";
-        cronString += " -g " + data.name;
-        cronString += " -u " + data.uuid;
-        cronString += " -o " + occur + "\n";
+    var cronString   = "";
+        cronString + = OSBS.config.site.gearHome;
+        cronString + = "cron/bin/cron-snapshot";
+        cronString + = " -g " + data.name;
+        cronString + = " -u " + data.uuid;
+        cronString + = " -o " + occur + "\n";
 
-    var baseCronPath = "";
-        baseCronPath += OSBS.config.site.gearHome + "/";
-        baseCronPath += "app-root/repo/.openshift/cron/"
-        baseCronPath += occur + "/";
+    var baseCronPath   = "";
+        baseCronPath + = OSBS.config.site.gearHome + "/";
+        baseCronPath + = "app-root/repo/.openshift/cron/"
+        baseCronPath + = occur + "/";
 
     var cronPath = baseCronPath + data.name;
     var jobsPath = baseCronPath + "jobs.allow";
@@ -225,30 +228,31 @@ function PostGearDelete (req, res) {
 }
 
 function GetGearDownload (req, res) {
-  var downloadPath = "";
-  downloadPath += OSBS.config.site.gearHome + "/";
-  downloadPath += "app-root/data/backups/" + params.date;
-  downloadPath += "/" + params.gear + ".tar.gz";
+  var downloadPath   = "";
+      downloadPath + = OSBS.config.site.gearHome + "/";
+      downloadPath + = "app-root/data/backups/" + params.date;
+      downloadPath + = "/" + params.gear + ".tar.gz";
 
   var downloadName = params.gear + "_" + params.date.replace(/\//g, "-") + ".tar.gz"
 
   res.download(downloadPath, downloadName);
 }
 
-app.get('/', ensureAuthenticated, RenderIndex);
-app.get('/login', RenderLogin);
-app.get('/logout', RenderLogout);
-app.get('/accountstats', ensureAuthenticated, RenderAccountStats);
-app.get('/gearinfo/:gear', ensureAuthenticated, RenderGearInfo);
-app.get('/gearlist', ensureAuthenticated, RenderGearList);
-app.get('/managebackups', ensureAuthenticated, RenderManageBackups);
-app.get('/schedulebackup', ensureAuthenticated, RenderScheduleBackup);
-app.get('/apidocs', ensureAuthenticated, RenderApiDocs);
-app.get('/deletegearbackup/:gear/:date', ensureAuthenticated, RenderGearDelete);
-app.post('/schedulebackup', ensureAuthenticated, PostScheduleBackup);
-app.post('/deletegearbackup', ensureAuthenticated, PostGearDelete);
-app.post('/downloadbackup/:gear/:date', ensureAuthenticated, GetGearDownload);
-app.post('/login', authenticate, RenderIndex);
+app.get('/login'                        , RenderLogin);
+app.get('/logout'                       , RenderLogout);
+app.get('/'                             , ensureAuthenticated , RenderIndex);
+app.get('/accountstats'                 , ensureAuthenticated , RenderAccountStats);
+app.get('/gearinfo/:gear'               , ensureAuthenticated , RenderGearInfo);
+app.get('/gearlist'                     , ensureAuthenticated , RenderGearList);
+app.get('/managebackups'                , ensureAuthenticated , RenderManageBackups);
+app.get('/schedulebackup'               , ensureAuthenticated , RenderScheduleBackup);
+app.get('/apidocs'                      , ensureAuthenticated , RenderApiDocs);
+app.get('/deletegearbackup/:gear/:date' , ensureAuthenticated , RenderGearDelete);
+
+app.post('/schedulebackup'              , ensureAuthenticated , PostScheduleBackup);
+app.post('/deletegearbackup'            , ensureAuthenticated , PostGearDelete);
+app.post('/downloadbackup/:gear/:date'  , ensureAuthenticated , GetGearDownload);
+app.post('/login'                       , authenticate        , RenderIndex);
 
 // AUTH Crap
 function deserializeUser (id, done) {
@@ -281,8 +285,8 @@ function authenticate (req, res, next) {
   passport.authenticate(
     'local',
     {
-      failureRedirect: '/admin/login.html',
-      failureFlash: true
+      failureRedirect : '/admin/login.html',
+      failureFlash    : true
     }
   );
   return next();
