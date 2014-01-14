@@ -51,11 +51,13 @@ fi
 
 touch $OPENSHIFT_DATA_DIR/.${app}-${uuid}-${occur}-running
 
+uid="$(uuidgen -r | md5sum | awk '{ print $1 }')"
+
 snapshot_date="$(date +%Y/%m/%d)"
 
 SNAPSHOT_DIR="${OPENSHIFT_DATA_DIR}/backups/${snapshot_date}/"
 
-SNAPSHOT="${SNAPSHOT_DIR}/${app}.tar.gz"
+SNAPSHOT="${SNAPSHOT_DIR}/${app}-${uid}.tar.gz"
 
 if [ ! -d $SNAPSHOT_DIR ];
 then
@@ -74,7 +76,7 @@ ssh_cmd+="\"snapshot\""
 eval $(echo $ssh_cmd) > ${SNAPSHOT}
 
 snapshot_size="$(ls -l ${SNAPSHOT} | awk '{ print $5 }')"
-node ${OPENSHIFT_OSBS_DIR}/bin/addbackup.js --gear=${gear} --size=${snapshot_size} --date=${snapshot_date}
+curl -XPOST -u ${OSBS_API_USER}:${OSBS_API_PASSWORD} "${OSBS_API_URL}/api/addbackup?gear=${gear}&size=${snapshot_size}&date=${snapshot_date}&uid=${uid}"
 
 if [[ "${occur}" == "minutely" ]]
 then

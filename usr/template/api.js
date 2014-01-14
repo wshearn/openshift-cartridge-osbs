@@ -1,3 +1,4 @@
+/// Module Init
 var fs            = require('fs'),
     express       = require('express'),
     passport      = require('passport'),
@@ -16,7 +17,24 @@ passport.serializeUser(serializeUser);
 passport.deserializeUser(deserializeUser);
 
 var authenticate = passport.authenticate('basic', {session: false});
+/// End Module Init
 
+/// Routes
+app.get('/api/help'              , RestApiHelp);
+app.post('/api/help'             , RestApiHelp);
+app.post('/api/addgear'          , authenticate  , RestAddGear);
+app.post('/api/delgear'          , authenticate  , RestDelGear);
+app.post('/api/getgear'          , authenticate  , RestGetGear);
+app.post('/api/getgears'         , authenticate  , RestGetGears);
+app.post('/api/addbackup'        , authenticate  , RestAddBackup);
+app.post('/api/getbackups'       , authenticate  , RestGetBackups);
+app.post('/api/gearstarted'      , authenticate  , RestGearStarted);
+app.post('/api/gearstopped'      , authenticate  , RestGearStopped);
+app.post('/api/schedulebackup'   , authenticate  , RestScheduleBackup);
+app.post('/api/unschedulebackup' , authenticate  , RestUnscheduleBackup);
+/// End Routes
+
+/// Helper Functions
 function execute(command, callback){
     exec(command, function(error, stdout, stderr){
       callback(stdout.replace(/\n/, ''));
@@ -44,22 +62,29 @@ function BasicApiHelper (req, res, result, status) {
   res.status(httpStatus).send(output);
 }
 
+function GetArgument (req, item) {
+  var value;
+
+  if (req.query[item])
+    value = req.query[item];
+  else if (req.body[item])
+    value = req.body[item]
+
+  return value;
+}
+
 function ApiParseReq (req, res) {
   var result = {};
 
-  if ((req.body["force"] && req.body["force"] == 'true') ||
-      (req.query["force"] && req.query["force"] == 'true'))
-    result["force"] = true;
-  else
+  result["force"] = GetArgument(req, "force");
+  if (typeof(result["force"]) === "undefined")
+  {
     result["force"] = false;
-
-
-  if (req.query["gear"]) {
-    result["gear"] = req.query["gear"];
   }
-  else if (req.body["gear"]) {
-    result["gear"] = req.body["gear"];
-  } else {
+
+
+  result["gear"] = GetArgument(req, "gear");
+  if (typeof(result["gear"]) === "undefined") {
     result = {
       result: false,
       cause: "You did not send a gear name"
@@ -70,18 +95,48 @@ function ApiParseReq (req, res) {
   return result;
 }
 
+function deserializeUser (id, done) {
+  findById(id, done, null);
+}
+
+function serializeUser (user, done) {
+  done(null, user.id)
+}
+
+function findById(id, done, err) {
+  var idx = id - 1;
+  if (OSBS.users[idx])
+    done(null, OSBS.users[idx]);
+  else
+    new error('User ' + id + ' does not exist');
+}
+
+function checkAuth (username, password, done) {
+  for (var i = 0, len = OSBS.api_users.length; i < len; i++) {
+    if (OSBS.api_users[i].username === username &&
+        OSBS.api_users[i].password === password) {
+      return done(null, OSBS.api_users[i]);
+    }
+  }
+  return done(null, false, { message: 'Unknown user or password' });
+}
+/// End Helper Functions
+
+/// Routes
+
+// TODO
+function RestApiHelp (req, res) {
+  return BasicApiHelper(req, res, { TODO : "I need to do this" })
+}
+
 function RestAddGear (req, res) {
   var result = {};
   var status = 200;
 
   result = ApiParseReq(req, res);
 
-  if (req.query["uuid"]) {
-    result["uuid"] = req.query["uuid"];
-  }
-  else if (req.body["uuid"]) {
-    result["uuid"] = req.body["uuid"];
-  } else {
+  result["uuid"] = GetArgument(req, "uuid");
+  if (typeof(result["uuid"]) === "undefined") {
     result = {
       result: false,
       cause: "You did not send a uuid"
@@ -126,25 +181,7 @@ function RestAddGear (req, res) {
   BasicApiHelper(req, res, result, status);
 }
 
-function GetArgument (req, item) {
-  var value;
-
-  if (req.query[item])
-    value = req.query[item];
-  else if (req.body[item])
-    value = req.body[item]
-
-  return value;
-}
-
-function RestGetGears (req, res) {
-  BasicApiHelper(req, res, OSBS.gears);
-}
-
-function RestGetBackups (req, res) {
-  BasicApiHelper(req, res, OSBS.backups);
-}
-
+// TODO
 function RestDelGear (req, res) {
   var request = ApiParseReq(req, res);
   var result  = {};
@@ -199,21 +236,37 @@ function RestGetGear (req, res) {
   return BasicApiHelper(req, res, result)
 }
 
-function RestAddBackup (req, res) {
-  var request    = ApiParseReq(req, res);
-  var result     = {};
-  var retCode    = 201;
-  var backupSize = GetArgument(req, "size");
-  var backupDate = GetArgument(req, "date");
+function RestGetGears (req, res) {
+  BasicApiHelper(req, res, OSBS.gears);
+}
 
-  if (typeof(backupSize) === "undefined") {
+function RestAddBackup (req, res) {
+  var request        = ApiParseReq(req, res);
+  var result         = {};
+  var retCode        = 200;
+  var backup         = {
+    uid:  GetArgument(req, "uid"),
+    size: GetArgument(req, "size"),
+    date: GetArgument(req, "date"),
+  };
+
+  if (typeof(backup.uid) === "undefined") {
+    result = {
+      result : false,
+      cause  : "Error getting backup uid"
+    }
+    return BasicApiHelper(req, res, result, 500);
+  }
+
+  if (typeof(backup.size) === "undefined") {
     result = {
       result : false,
       cause  : "Error getting backup size"
     }
     return BasicApiHelper(req, res, result, 500);
   }
-  if (typeof(backupDate) === "undefined") {
+
+  if (typeof(backup.date) === "undefined") {
     result = {
       result : false,
       cause  : "Error getting backup date"
@@ -221,13 +274,60 @@ function RestAddBackup (req, res) {
     return BasicApiHelper(req, res, result, 500);
   }
 
-  backups[request["gear"]].size = backupSize;
-  backups[request["gear"]].date = backupDate;
+  console.log(JSON.stringify(backup, null, 4))
+
+  OSBS.backups[request["gear"]].backups[OSBS.backups[request["gear"]].backups.length] = backup;
+
+  fs.writeFileSync(
+    "./backups.json",
+    JSON.stringify(OSBS.backups, null, 4),
+    'UTF-8'
+  );
 
   result = {
     result: true
   }
   return BasicApiHelper(req, res, result, retCode);
+}
+
+function RestGetBackups (req, res) {
+  BasicApiHelper(req, res, OSBS.backups);
+}
+
+// Hack till I can really do this
+function RestGearStarted (req, res) {
+  var request = ApiParseReq(req, res);
+  var result  = {};
+  var retCode = 200;
+
+  if (OSBS.gears.gears[request.gear].backups.daily == true)
+      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+
+  if (OSBS.gears.gears[request.gear].backups.weekly == true)
+      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+
+  if (OSBS.gears.gears[reuest.gear].backups.monthly == true)
+      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
+
+  return BasicApiHelper(req, res, { TODO : "I need to do this" })
+}
+
+// Hack till I can really do this
+function RestGearStopped (req, res) {
+  var request = ApiParseReq(req, res);
+  var result  = {};
+  var retCode = 200;
+
+  if (OSBS.gears.gears[request.gear].backups.daily == true)
+      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+
+  if (OSBS.gears.gears[request.gear].backups.weekly == true)
+      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+
+  if (OSBS.gears.gears[request.gear].backups.monthly == true)
+      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
+
+  return BasicApiHelper(req, res, { TODO : "I need to do this" })
 }
 
 function RestScheduleBackup (req, res) {
@@ -268,16 +368,16 @@ function RestScheduleBackup (req, res) {
     }
 
     var cronString   = "";
-        cronString + = OSBS.config.site.gearHome;
-        cronString + = "cron/bin/cron-snapshot";
-        cronString + = " -g " + data.name;
-        cronString + = " -u " + data.uuid;
-        cronString + = " -o " + occur + "\n";
+        cronString += OSBS.config.site.gearHome;
+        cronString += "cron/bin/cron-snapshot";
+        cronString += " -g " + data.name;
+        cronString += " -u " + data.uuid;
+        cronString += " -o " + occur + "\n";
 
     var baseCronPath   = "";
-        baseCronPath + = OSBS.config.site.gearHome + "/";
-        baseCronPath + = "app-root/repo/.openshift/cron/"
-        baseCronPath + = occur + "/";
+        baseCronPath += OSBS.config.site.gearHome + "/";
+        baseCronPath += "app-root/repo/.openshift/cron/"
+        baseCronPath += occur + "/";
 
     var cronPath = baseCronPath + data.name;
     var jobsPath = baseCronPath + "jobs.allow";
@@ -305,81 +405,4 @@ function RestScheduleBackup (req, res) {
 
 function RestUnscheduleBackup (req, res) {
   return BasicApiHelper(req, res, { TODO : "I need to do this" })
-}
-
-function RestApiHelp (req, res) {
-  return BasicApiHelper(req, res, { TODO : "I need to do this" })
-}
-
-function RestGearStarted (req, res) {
-  var request = ApiParseReq(req, res);
-  var result  = {};
-  var retCode = 200;
-
-  if (OSBS.gears.gears[request.gear].backups.daily == true)
-      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
-
-  if (OSBS.gears.gears[request.gear].backups.weekly == true)
-      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
-
-  if (OSBS.gears.gears[reuest.gear].backups.monthly == true)
-      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
-
-  return BasicApiHelper(req, res, { TODO : "I need to do this" })
-}
-
-function RestGearStopped (req, res) {
-  var request = ApiParseReq(req, res);
-  var result  = {};
-  var retCode = 200;
-
-  if (OSBS.gears.gears[request.gear].backups.daily == true)
-      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
-
-  if (OSBS.gears.gears[request.gear].backups.weekly == true)
-      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
-
-  if (OSBS.gears.gears[request.gear].backups.monthly == true)
-      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
-
-  return BasicApiHelper(req, res, { TODO : "I need to do this" })
-}
-
-// TODO
-app.post('/api/help'             , RestApiHelp);
-app.post('/api/addgear'          , authenticate  , RestAddGear);
-app.post('/api/delgear'          , authenticate  , RestDelGear);
-app.post('/api/getgear'          , authenticate  , RestGetGear);
-app.post('/api/getgears'         , authenticate  , RestGetGears);
-app.post('/api/getbackups'       , authenticate  , RestGetBackups);
-app.post('/api/schedulebackup'   , authenticate  , RestScheduleBackup);
-app.post('/api/gearstarted'      , authenticate  , RestGearStarted);
-app.post('/api/gearstopped'      , authenticate  , RestGearStopped);
-app.post('/api/unschedulebackup' , authenticate  , RestUnscheduleBackup);
-
-// AUTH crap
-function deserializeUser (id, done) {
-  findById(id, done, null);
-}
-
-function serializeUser (user, done) {
-  done(null, user.id)
-}
-
-function findById(id, done, err) {
-  var idx = id - 1;
-  if (OSBS.users[idx])
-    done(null, OSBS.users[idx]);
-  else
-    new error('User ' + id + ' does not exist');
-}
-
-function checkAuth (username, password, done) {
-  for (var i = 0, len = OSBS.api_users.length; i < len; i++) {
-    if (OSBS.api_users[i].username === username &&
-        OSBS.api_users[i].password === password) {
-      return done(null, OSBS.api_users[i]);
-    }
-  }
-  return done(null, false, { message: 'Unknown user or password' });
 }

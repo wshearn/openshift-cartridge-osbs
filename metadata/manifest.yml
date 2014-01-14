@@ -1,5 +1,5 @@
 ---
-Name: cron
+Name: osbs
 Vendor: whearn
 Cartridge-Short-Name: OSBS
 Display-Name: OSBS 0.1
@@ -20,9 +20,6 @@ Categories:
 - javascript
 - nodejs
 - web_framework
-- scheduler-service
-- cron-service
-- cron-5.0
 Help-Topics:
   Developer Center: https://www.openshift.com/developers
 Cart-Data:
@@ -69,8 +66,6 @@ Cart-Data:
   Type: environment
   Description: API url
 Provides:
-- cron-5.0
-- cron
 - osbs-0.1
 - osbs
 Scaling:

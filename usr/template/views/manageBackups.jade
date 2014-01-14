@@ -23,11 +23,13 @@ block content
             legend= gear.name
             if data[gear.name].backups && data[gear.name].backups.length > 0
               div.row
-                div.large-4.columns
+                div.large-3.columns
                   h3 Date
-                div.large-4.columns
+                div.large-3.columns
                   h3 Size
-                div.large-4.columns
+                div.large-3.columns
+                  h3 Download
+                div.large-3.columns
                   h3 Delete
               each backup in data[gear.name].backups
                 div.row
@@ -36,7 +38,7 @@ block content
                   div.large-3.columns
                     h4= backup.size
                   div.large-3.columns
-                    a.small.button(href="/downloadbackup/#{gear.name}/#{backup.date}")
+                    a.small.button(href="/downloadbackup/#{gear.name}/#{backup.date}/#{backup.uid}")
                       | Download
                   div.large-3.columns
                     a.small.button.alert(href="/deletegearbackup/#{gear.name}/#{backup.date}")
