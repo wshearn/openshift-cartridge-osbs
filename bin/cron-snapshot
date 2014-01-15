@@ -76,7 +76,7 @@ ssh_cmd+="\"snapshot\""
 eval $(echo $ssh_cmd) > ${SNAPSHOT}
 
 snapshot_size="$(ls -l ${SNAPSHOT} | awk '{ print $5 }')"
-curl -XPOST -u ${OSBS_API_USER}:${OSBS_API_PASSWORD} "${OSBS_API_URL}/api/addbackup?gear=${gear}&size=${snapshot_size}&date=${snapshot_date}&uid=${uid}"
+curl -XPOST -u ${OSBS_API_USER}:${OSBS_API_PASSWORD} "${OSBS_API_URL}/api/addbackup?gear=${app}&size=${snapshot_size}&date=${snapshot_date}&uid=${uid}"
 
 if [[ "${occur}" == "minutely" ]]
 then
