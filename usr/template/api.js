@@ -277,10 +277,10 @@ function RestAddBackup (req, res) {
   console.log(JSON.stringify(backup, null, 4))
 
   try {
-    OSBS.backups[request["gear"]][OSBS.backups[request["gear"]].length] = backup;
+    OSBS.backups[request["gear"]].backups[OSBS.backups[request["gear"]].backups.length] = backup;
   } catch(err) {
-    OSBS.backups[request["gear"]] = [];
-    OSBS.backups[request["gear"]][OSBS.backups[request["gear"]].length] = backup;
+    OSBS.backups[request["gear"]].backups = [];
+    OSBS.backups[request["gear"]].backups[OSBS.backups[request["gear"]].backups.length] = backup;
   }
 
   fs.writeFileSync(
