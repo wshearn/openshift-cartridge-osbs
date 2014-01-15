@@ -276,7 +276,12 @@ function RestAddBackup (req, res) {
 
   console.log(JSON.stringify(backup, null, 4))
 
-  OSBS.backups[request["gear"]].backups[OSBS.backups[request["gear"]].backups.length] = backup;
+  try {
+    OSBS.backups[request["gear"]][OSBS.backups[request["gear"]].length] = backup;
+  } catch(err) {
+    OSBS.backups[request["gear"]] = [];
+    OSBS.backups[request["gear"]][OSBS.backups[request["gear"]].length] = backup;
+  }
 
   fs.writeFileSync(
     "./backups.json",
@@ -369,7 +374,7 @@ function RestScheduleBackup (req, res) {
 
     var cronString   = "";
         cronString += OSBS.config.site.gearHome;
-        cronString += "cron/bin/cron-snapshot";
+        cronString += "osbs/bin/cron-snapshot";
         cronString += " -g " + data.name;
         cronString += " -u " + data.uuid;
         cronString += " -o " + occur + "\n";
