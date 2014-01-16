@@ -24,7 +24,7 @@ block content
           h4 #{backup.date}
         div.large-5.columns
           h4 
-            a(href="/backups/test/#{backup.date}-#{gear}.tar.bz2")
+            a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
               | Download
         div.large-2.columns
           form(method="link", action"/gearinfo/#{gear}")
