@@ -40,6 +40,7 @@ app.get('/'                                  , ensureAuthenticated , RenderIndex
 app.get('/apidocs'                           , ensureAuthenticated , RenderApiDocs);
 app.get('/gearinfo/:gear'                    , ensureAuthenticated , RenderGearInfo);
 app.get('/gearlist'                          , ensureAuthenticated , RenderGearList);
+app.get('/downloadbackup/:gear/:date/:uid'   , ensureAuthenticated , GetGearDownload);
 app.get('/deletegearbackup/:gear/:date/:uid' , ensureAuthenticated , RenderGearDelete);
 app.get('/accountstats'                      , ensureAuthenticated , RenderAccountStats);
 app.get('/managebackups'                     , ensureAuthenticated , RenderManageBackups);
@@ -47,7 +48,6 @@ app.get('/schedulebackup'                    , ensureAuthenticated , RenderSched
 
 app.post('/login'                            , authenticate        , RenderIndex);
 app.post('/deletegearbackup'                 , ensureAuthenticated , PostGearDelete);
-app.post('/downloadbackup/:gear/:date/:uid'  , ensureAuthenticated , PostGearDownload);
 app.post('/schedulebackup'                   , ensureAuthenticated , PostScheduleBackup);
 /// End Routes
 
@@ -242,6 +242,20 @@ function RenderScheduleBackup(req, res) {
   var title = base_title + " - Schedule Backup";
   RenderHelper('scheduleBackup', title, '', req, res, OSBS.gears);
 }
+
+// TODO: Test
+function GetGearDownload (req, res) {
+  var downloadPath  = "";
+      downloadPath += OSBS.config.site.gearHome + "/";
+      downloadPath += "app-root/data/backups/";
+      downloadPath += req.params.date.replace(/-/g, "/") + "/";
+      doenloadPath += req.params.gear + "-" + req.params.uid + ".tar.gz";
+
+  var downloadName  = req.params.gear + "_";
+      downloadName += req.params.date.replace(/\//g, "-") + ".tar.gz"
+
+  res.download(downloadPath, downloadName);
+}
 /// End Get Routes
 
 /// Post Routes
@@ -249,18 +263,6 @@ function RenderScheduleBackup(req, res) {
 function PostGearDelete (req, res) {
   console.log(req.data);
   res.redirect('/managebackups');
-}
-
-// TODO: Test
-function PostGearDownload (req, res) {
-  var downloadPath   = "";
-      downloadPath += OSBS.config.site.gearHome + "/";
-      downloadPath += "app-root/data/backups/" + params.date.replace(/\//g, "/");
-      downloadPath += "/" + params.gear + "-" + params.uid + ".tar.gz";
-
-  var downloadName = params.gear + "_" + params.date.replace(/\//g, "-") + ".tar.gz"
-
-  res.download(downloadPath, downloadName);
 }
 
 // Done
