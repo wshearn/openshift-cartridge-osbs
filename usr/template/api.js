@@ -247,7 +247,7 @@ function RestAddBackup (req, res) {
   var backup         = {
     uid:  GetArgument(req, "uid"),
     size: GetArgument(req, "size"),
-    date: GetArgument(req, "date"),
+    date: GetArgument(req, "date").replace(/\//g, "-"),
   };
 
   if (typeof(backup.uid) === "undefined") {

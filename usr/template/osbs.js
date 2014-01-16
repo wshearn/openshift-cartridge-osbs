@@ -255,7 +255,7 @@ function PostGearDelete (req, res) {
 function PostGearDownload (req, res) {
   var downloadPath   = "";
       downloadPath += OSBS.config.site.gearHome + "/";
-      downloadPath += "app-root/data/backups/" + params.date;
+      downloadPath += "app-root/data/backups/" + params.date.replace(/\//g, "/");
       downloadPath += "/" + params.gear + "-" + params.uid + ".tar.gz";
 
   var downloadName = params.gear + "_" + params.date.replace(/\//g, "-") + ".tar.gz"
