@@ -249,7 +249,7 @@ function GetGearDownload (req, res) {
       downloadPath += OSBS.config.site.gearHome + "/";
       downloadPath += "app-root/data/backups/";
       downloadPath += req.params.date.replace(/-/g, "/") + "/";
-      doenloadPath += req.params.gear + "-" + req.params.uid + ".tar.gz";
+      downloadPath += req.params.gear + "-" + req.params.uid + ".tar.gz";
 
   var downloadName  = req.params.gear + "_";
       downloadName += req.params.date.replace(/\//g, "-") + ".tar.gz"
