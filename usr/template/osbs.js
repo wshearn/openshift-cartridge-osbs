@@ -43,7 +43,6 @@ app.get('/gearlist'                          , ensureAuthenticated , RenderGearL
 app.get('/downloadbackup/:gear/:date/:uid'   , ensureAuthenticated , GetGearDownload);
 app.get('/deletegearbackup/:gear/:date/:uid' , ensureAuthenticated , RenderGearDelete);
 app.get('/accountstats'                      , ensureAuthenticated , RenderAccountStats);
-app.get('/managebackups'                     , ensureAuthenticated , RenderManageBackups);
 app.get('/schedulebackup'                    , ensureAuthenticated , RenderScheduleBackup);
 
 app.post('/login'                            , authenticate        , RenderIndex);
@@ -224,16 +223,6 @@ function RenderAccountStats(req, res) {
   OSBS.menu.handleMenu("Account Stats");
   var title = base_title + " - Account Stats";
   RenderHelper('accountStats', title, '', req, res, data);
-}
-
-// Somewhat done
-function RenderManageBackups(req, res) {
-  reloadBackups();
-
-  var data = { data: OSBS.us.extend(OSBS.gears, OSBS.backups) }
-  OSBS.menu.handleMenu("Manage Backups");
-  var title = base_title + " - Manage Backups";
-  RenderHelper('manageBackups', title, '', req, res, data);
 }
 
 // Done
