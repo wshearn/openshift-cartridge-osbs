@@ -11,18 +11,22 @@ block content
         h3 You have no backups for this gear
   else
     div.row
-      div.large-5.columns
+      div.large-4.columns
         h3 Backup Date
-      div.large-5.columns
+      div.large-2.columns
+        h3 Size
+      div.large-4.columns
         h3 Download Backup
       div.large-2.columns
         h3 Restore
     hr
     each backup in backups
       div.row
-        div.large-5.columns
-          h4 #{backup.date}
-        div.large-5.columns
+        div.large-4.columns
+          h4= backup.date
+        div.large-2.columns
+          h4 backup.size
+        div.large-4.columns
           h4 
             a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
               | Download
