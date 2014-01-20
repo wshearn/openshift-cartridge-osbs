@@ -42,6 +42,7 @@ chmod 0640 "${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa.pub"
 public_key=$(cat ${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa.pub)
 set -- $public_key
 add_domain_ssh_key "$2"
+chmod 0600 ${OPENSHIFT_DATA_DIR}/.ssh/*
 
 apiadmin_password=$(generate_password)
 sed -i "s/APIADMINPASS/$apiadmin_password/" ${OPENSHIFT_OSBS_DIR}/usr/template/users.json
