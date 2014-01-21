@@ -11,7 +11,8 @@
     "passport": "*",
     "passport-http": "*",
     "passport-local": "*",
-    "connect-flash": "*"
+    "connect-flash": "*",
+    "ssh2": "*"
   },
 
   "main": "server.js"

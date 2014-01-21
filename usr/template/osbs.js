@@ -47,6 +47,7 @@ app.get('/schedulebackup'                    , ensureAuthenticated , RenderSched
 
 app.post('/login'                            , authenticate        , RenderIndex);
 app.post('/deletegearbackup'                 , ensureAuthenticated , PostGearDelete);
+app.post('/restorebackup/:gear/:date/:uid'   , ensureAuthenticated , PostRestoreBackup);
 app.post('/schedulebackup'                   , ensureAuthenticated , PostScheduleBackup);
 /// End Routes
 
@@ -252,6 +253,14 @@ function GetGearDownload (req, res) {
 function PostGearDelete (req, res) {
   console.log(req.data);
   res.redirect('/managebackups');
+}
+
+// TODO: Doing
+// Try out ssh2 node module
+// If all else fails do a single cronjob like we do for one backup.
+function PostRestoreBackup(req, res) {
+    var sshKeyPath = process.env.OPENSHIFT_DATA_DIR + ".ssh/osbs_id_rsa"
+    return res.status(500).send("notimp");
 }
 
 // Done
