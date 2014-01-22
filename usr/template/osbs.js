@@ -160,7 +160,7 @@ function RenderIndex (req, res) {
   res.redirect('/accountstats');
 };
 
-// TODO
+// TODO: Write api docs. yay?
 function RenderApiDocs(req, res) {
   OSBS.menu.handleMenu("API Docs");
   var title = base_title + " - API Docs";
@@ -181,14 +181,14 @@ function RenderGearInfo(req, res) {
   RenderHelper('gearInfo', title, '', req, res, gearInfo);
 }
 
-// Staples, that was easy
+// Renders a list of applications you have set up(ie added the client cartridge)
 function RenderGearList(req, res) {
   OSBS.menu.handleMenu("Gear List");
   var title = base_title + " - Gear List";
   RenderHelper('gearList', title, '', req, res, OSBS.gears);
 }
 
-// TODO
+// TODO: Add correct link to call delete
 function RenderGearDelete (req, res) {
   var title = base_title + " - Delete Gear Backup";
   var data = {
@@ -198,7 +198,8 @@ function RenderGearDelete (req, res) {
   RenderHelper('deletegearbackup', title, '', req, res, data);
 }
 
-// Nothing special here yet...
+// TODO: Add more pretty graphs and stuff.
+// TODO: Find out exactly people would want here
 function RenderAccountStats(req, res) {
   var graphData = [];
 
@@ -226,14 +227,18 @@ function RenderAccountStats(req, res) {
   RenderHelper('accountStats', title, '', req, res, data);
 }
 
-// Done
+// Render a simple space that allows people to schedule a backup
+// TODO: Merge this in with the gear info page.
 function RenderScheduleBackup(req, res) {
   OSBS.menu.handleMenu("Schedule Backup");
   var title = base_title + " - Schedule Backup";
   RenderHelper('scheduleBackup', title, '', req, res, OSBS.gears);
 }
 
-// TODO: Test
+// Uses express.js download function to send the backup to the user
+// Doing the downloads is "more secure" as the downloads are not sitting on a
+// web facing directoy.
+// More secure != most secured. Need to evaluate how secure this really is.
 function GetGearDownload (req, res) {
   var downloadPath  = "";
       downloadPath += OSBS.config.site.gearHome + "/";
@@ -249,7 +254,7 @@ function GetGearDownload (req, res) {
 /// End Get Routes
 
 /// Post Routes
-// TODO
+// TODO: Remove from OSBS.backups and call fs.unlinksync on the backup
 function PostGearDelete (req, res) {
   console.log(req.data);
   res.redirect('/managebackups');
@@ -258,6 +263,7 @@ function PostGearDelete (req, res) {
 // TODO: Doing
 // Try out ssh2 node module
 // If all else fails do a single cronjob like we do for one backup.
+// Should be pretty easy to handle
 function PostRestoreBackup(req, res) {
     var sshKeyPath = process.env.OPENSHIFT_DATA_DIR + ".ssh/osbs_id_rsa"
     return res.status(500).send("notimp");

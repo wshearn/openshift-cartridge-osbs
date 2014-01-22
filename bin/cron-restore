@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+usage()
+{
+    echo "This is a simple bash script that backs up your OpenShift gears"
+    echo "Usage:"
+    echo "    -g <gear name>   - REQUIRED  - The name of the gear to backup"
+    echo "    -u <gear uuid>   - REQUIRED  - The uuid of the gear to backup"
+    echo "    -b <backup name> - REQUIRED - How often this backup runs"
+    echo "    -h               - Prints this help message and exits"
+}
+
+while getopts "g:u:o:h" OPTION
+do
+    case $OPTION in
+        g)
+            app=$OPTARG
+            ;;
+        u)
+            uuid=$OPTARG
+            ;;
+        b)
+            backup=$OPTARG
+            ;;
+        h)
+            usage
+            exit 0;
+            ;;
+    esac
+done
+
+if [[ -z $app ]]; then
+    usage
+    echo -e "\nERROR: Gear name not passed in."
+    exit -1;
+elif [[ -z $uuid ]]; then
+    usage
+    echo -e "\nERROR: Gear uuid not passed in."
+    exit -1;
+elif [[ -z $backup ]]; then
+    usage
+    echo -e "\nERROR: Occurrence not passed in."
+    exit -1;
+fi
+
+# Exit cleanly if we are already running
+if [[ -f $OPENSHIFT_DATA_DIR/.${app}-${uuid}-restore-running ]]
+then
+    exit 0;
+fi
+
+if [[ ! -f $backup ]]
+then
+    echo "Backup Not Found"
+fi
+
+touch $OPENSHIFT_DATA_DIR/.${app}-${uuid}-restore-running
+
+ssh_cmd="ssh -i ${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa -o StrictHostKeyChecking=no "
+ssh_cmd+="${uuid}@${app}-${OPENSHIFT_NAMESPACE}"
+ssh_cmd+="$(echo ${OPENSHIFT_GEAR_DNS} | sed "s/.*${OPENSHIFT_NAMESPACE}//") "
+ssh_cmd+="\"restore\""
+
+# Kids, don't use eval at home.
+cat $backup | eval $(echo $ssh_cmd)
+
+sed -i "s/${app}-restore//" $OPENSHIFT_REPO_DIR/.openshift/cron/${occur}/jobs.allow
+
+rm -f $OPENSHIFT_DATA_DIR/.${app}-${uuid}-restore-running
