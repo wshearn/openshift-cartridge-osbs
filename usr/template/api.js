@@ -305,14 +305,27 @@ function RestGearStarted (req, res) {
   var result  = {};
   var retCode = 200;
 
-  if (OSBS.gears.gears[request.gear].backups.daily == true)
-      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+  var gear;
+  var data    = {};
 
-  if (OSBS.gears.gears[request.gear].backups.weekly == true)
-      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+  for (var i = OSBS.gears.gears.length - 1; i >= 0; i--){
+      if (OSBS.gears.gears[i].name === request["gear"]) {
+          gear = i;
+          data = OSBS.gears.gears[i];
+          break;
+      }
+  }
+  if (typeof(data.name) === 'undefined')
+      throw new error("Gear Not Found");
 
-  if (OSBS.gears.gears[reuest.gear].backups.monthly == true)
-      execute("sed -i 's/#" + request["gear"] + "/" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
+  if (OSBS.gears.gears[gear].backups.daily == true)
+      execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+
+  if (OSBS.gears.gears[gear].backups.weekly == true)
+      execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+
+  if (OSBS.gears.gears[gear].backups.monthly == true)
+      execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
 
   return BasicApiHelper(req, res, { TODO : "I need to do this" })
 }
@@ -323,14 +336,27 @@ function RestGearStopped (req, res) {
   var result  = {};
   var retCode = 200;
 
-  if (OSBS.gears.gears[request.gear].backups.daily == true)
-      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+  var gear;
+  var data    = {};
 
-  if (OSBS.gears.gears[request.gear].backups.weekly == true)
-      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+  for (var i = OSBS.gears.gears.length - 1; i >= 0; i--){
+      if (OSBS.gears.gears[i].name === request["gear"]) {
+          gear = i;
+          data = OSBS.gears.gears[i];
+          break;
+      }
+  }
+  if (typeof(data.name) === 'undefined')
+      throw new error("Gear Not Found");
 
-  if (OSBS.gears.gears[request.gear].backups.monthly == true)
-      execute("sed -i 's/" + request["gear"] + "/#" + request["gear"] + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
+  if (OSBS.gears.gears[gear].backups.daily == true)
+      execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+
+  if (OSBS.gears.gears[gear].backups.weekly == true)
+      execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+
+  if (OSBS.gears.gears[gear].backups.monthly == true)
+      execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
 
   return BasicApiHelper(req, res, { TODO : "I need to do this" })
 }
