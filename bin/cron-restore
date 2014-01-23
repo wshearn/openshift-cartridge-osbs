@@ -56,13 +56,13 @@ fi
 
 touch $OPENSHIFT_DATA_DIR/.${app}-${uuid}-restore-running
 
-ssh_cmd="ssh -i ${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa -o StrictHostKeyChecking=no "
+ssh_cmd="${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa -o StrictHostKeyChecking=no "
 ssh_cmd+="${uuid}@${app}-${OPENSHIFT_NAMESPACE}"
 ssh_cmd+="$(echo ${OPENSHIFT_GEAR_DNS} | sed "s/.*${OPENSHIFT_NAMESPACE}//") "
-ssh_cmd+="\"restore\""
+ssh_cmd+="'restore INCLUDE_GIT'"
 
 # Kids, don't use eval at home.
-cat $backup | eval $(echo $ssh_cmd)
+cat $backup | ssh $ssh_cmd
 
 sed -i "s/${app}-restore//" $OPENSHIFT_REPO_DIR/.openshift/cron/minutely/jobs.allow
 
