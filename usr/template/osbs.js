@@ -280,12 +280,17 @@ function PostRestoreBackup(req, res) {
           throw new error("Gear Not Found");
 
       var backupString  = "";
-          backupString += process.env.OPENSHIFT_DATA_DIR;
-          backupString += "backups/";// + req.body["date"].replace('')
+          backupString += process.env.OPENSHIFT_DATA_DIR + "backups/";
+          backupString += req.body["date"].replace(/-/g, "/") + data.name;
+          backupString += "-"+ req.body["uuid"] + "tar.gz"
+
       var cronString  = "";
           cronString += OSBS.config.site.gearHome;
           cronString += " -g " + data.name;
           cronString += " -u " + data.uuid;
+          cronString += " -b " + backupString;
+
+      console.log(cronString);
       return res.status(200).send("success");
     } catch (err) {
       return res.status(500).send("failure");
