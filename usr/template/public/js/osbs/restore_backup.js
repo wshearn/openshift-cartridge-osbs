@@ -1,9 +1,10 @@
-function scheduleBackup_ajaxCall(event)
+function scheduleRestore_ajaxCall(gear, date, uuid)
 {
-  var url=$("#schedulebackup_form").attr("action");
+  var url="/restorebackup";
   var data = {
-    gear: $("#gearlist").val(),
-    occurrence: $("#occurrence").val()
+    gear: gear,
+    date: date,
+    uuid: uuid
   }
 
   var posting = $.post(url, data);
@@ -12,12 +13,12 @@ function scheduleBackup_ajaxCall(event)
   posting.fail(scheduleBackup_showFailureBox);
 }
 
-function scheduleBackup_showSuccessBox()
+function scheduleRestore_showSuccessBox()
 {
   $("#success-box").slideDown();
 }
 
-function scheduleBackup_showFailureBox()
+function scheduleRestore_showFailureBox()
 {
   $("#failure-box").slideDown();
 }

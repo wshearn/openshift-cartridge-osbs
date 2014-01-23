@@ -1,6 +1,14 @@
 extends layout
 
+vlock scripts
+  script(srd='/js/osbs/schedule_backup.js')
+  script.
+    window.onload = page_loaded();
 block content
+  div.alert-box.success(id="success-box", style="display: none")
+    | Restore Queued - Should be completed in the next 5 minutes
+  div.alert-box.alert(id="failure-box", style="display: none")
+    | Scheduling restore failed
   div.row
     div.large-7.columns
       a(href="http://test-whearn.rhcloud.com")
@@ -31,6 +39,5 @@ block content
             a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
               | Download
         div.large-2.columns
-          form(method="link", action"/gearinfo/#{gear}")
-            button.warn.button(type="submit")
-              | Restore
+          button.warn.button(onclick="scheduleRestore_ajaxCall(#{gear}, #{backup.date}, #{backup.uid})")
+            | Restore

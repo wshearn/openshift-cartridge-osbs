@@ -47,7 +47,7 @@ app.get('/schedulebackup'                    , ensureAuthenticated , RenderSched
 
 app.post('/login'                            , authenticate        , RenderIndex);
 app.post('/deletegearbackup'                 , ensureAuthenticated , PostGearDelete);
-app.post('/restorebackup/:gear/:date/:uid'   , ensureAuthenticated , PostRestoreBackup);
+app.post('/restorebackup'                    , ensureAuthenticated , PostRestoreBackup);
 app.post('/schedulebackup'                   , ensureAuthenticated , PostScheduleBackup);
 /// End Routes
 
@@ -265,8 +265,31 @@ function PostGearDelete (req, res) {
 // If all else fails do a single cronjob like we do for one backup.
 // Should be pretty easy to handle
 function PostRestoreBackup(req, res) {
-    var sshKeyPath = process.env.OPENSHIFT_DATA_DIR + ".ssh/osbs_id_rsa"
-    return res.status(500).send("notimp");
+    try {
+        throw new error("Not Implet");
+      var gear;
+      var data = {};
+      for (var i = OSBS.gears.gears.length; i >= 0; i--) {
+          if (OSBS.gears.gears[i] === req.body["gear"]) {
+            gear = i;
+            data = OSBS.gears.gears[i];
+            break;
+          }
+      }
+      if (typeof(data.name) === 'undefined')
+          throw new error("Gear Not Found");
+
+      var backupString  = "";
+          backupString += process.env.OPENSHIFT_DATA_DIR;
+          backupString += "backups/";// + req.body["date"].replace('')
+      var cronString  = "";
+          cronString += OSBS.config.site.gearHome;
+          cronString += " -g " + data.name;
+          cronString += " -u " + data.uuid;
+      return res.status(200).send("success");
+    } catch (err) {
+      return res.status(500).send("failure");
+    }
 }
 
 // Done
@@ -282,7 +305,7 @@ function PostScheduleBackup(req, res) {
       }
     };
     if (typeof(data.name) === 'undefined')
-      throw new error("Nope");
+      throw new error("Gear Not Found");
 
     var occur;
     if (req.body["occurrence"] == "Once")
@@ -293,14 +316,14 @@ function PostScheduleBackup(req, res) {
       data.backups[occur] = true;
     }
 
-    var cronString   = "";
+    var cronString  = "";
         cronString += OSBS.config.site.gearHome;
         cronString += "osbs/bin/cron-snapshot";
         cronString += " -g " + data.name;
         cronString += " -u " + data.uuid;
         cronString += " -o " + occur + "\n";
 
-    var baseCronPath   = "";
+    var baseCronPath  = "";
         baseCronPath += OSBS.config.site.gearHome + "/";
         baseCronPath += "app-root/repo/.openshift/cron/"
         baseCronPath += occur + "/";
