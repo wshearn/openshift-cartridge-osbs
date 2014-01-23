@@ -10,7 +10,7 @@ usage()
     echo "    -h               - Prints this help message and exits"
 }
 
-while getopts "g:u:o:h" OPTION
+while getopts "g:u:b:h" OPTION
 do
     case $OPTION in
         g)
@@ -39,7 +39,7 @@ elif [[ -z $uuid ]]; then
     exit -1;
 elif [[ -z $backup ]]; then
     usage
-    echo -e "\nERROR: Occurrence not passed in."
+    echo -e "\nERROR: Backup not passed in."
     exit -1;
 fi
 
