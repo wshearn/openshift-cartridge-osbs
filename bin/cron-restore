@@ -64,6 +64,6 @@ ssh_cmd+="\"restore\""
 # Kids, don't use eval at home.
 cat $backup | eval $(echo $ssh_cmd)
 
-sed -i "s/${app}-restore//" $OPENSHIFT_REPO_DIR/.openshift/cron/${occur}/jobs.allow
+sed -i "s/${app}-restore//" $OPENSHIFT_REPO_DIR/.openshift/cron/minutely/jobs.allow
 
 rm -f $OPENSHIFT_DATA_DIR/.${app}-${uuid}-restore-running
