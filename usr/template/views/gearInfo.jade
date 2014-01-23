@@ -39,5 +39,5 @@ block content
             a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
               | Download
         div.large-2.columns
-          button.warn.button(onclick="scheduleRestore_ajaxCall("#{gear}", "#{backup.date}", "#{backup.uid}")")
+          button.warn.button(onclick="scheduleRestore_ajaxCall('#{gear}', '#{backup.date}', '#{backup.uid}')")
             | Restore
