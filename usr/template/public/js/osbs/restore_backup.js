@@ -9,8 +9,8 @@ function scheduleRestore_ajaxCall(gear, date, uuid)
 
   var posting = $.post(url, data);
 
-  posting.done(scheduleBackup_showSuccessBox);
-  posting.fail(scheduleBackup_showFailureBox);
+  posting.done(scheduleRestore_showSuccessBox);
+  posting.fail(scheduleRestore_showFailureBox);
 }
 
 function scheduleRestore_showSuccessBox()
