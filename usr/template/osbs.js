@@ -266,7 +266,6 @@ function PostGearDelete (req, res) {
 // Should be pretty easy to handle
 function PostRestoreBackup(req, res) {
     try {
-        throw new error("Not Implet");
       var gear;
       var data = {};
       for (var i = OSBS.gears.gears.length; i >= 0; i--) {
@@ -279,11 +278,12 @@ function PostRestoreBackup(req, res) {
       if (typeof(data.name) === 'undefined')
           throw new error("Gear Not Found");
 
+      console.log(JSON.stringify(req.data, null, 4));
       var backupString  = "";
           backupString += process.env.OPENSHIFT_DATA_DIR + "backups/";
           backupString += req.body["date"].replace(/-/g, "/") + data.name;
           backupString += "-"+ req.body["uuid"] + "tar.gz"
-    console.log(backupString);
+      console.log(backupString)
 
       var cronString  = "";
           cronString += OSBS.config.site.gearHome;
