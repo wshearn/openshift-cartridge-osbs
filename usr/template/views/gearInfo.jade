@@ -1,7 +1,7 @@
 extends layout
 
 block scripts
-  script(srd='/js/osbs/restore_backup.js')
+  script(src='/js/osbs/restore_backup.js')
   script.
     window.onload = page_loaded();
 block content
@@ -39,5 +39,5 @@ block content
             a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
               | Download
         div.large-2.columns
-          button.warn.button(onclick="scheduleRestore_ajaxCall(\"#{gear}\", \"#{backup.date}\", \"#{backup.uid}\")")
+          button.warn.button(onclick="scheduleRestore_ajaxCall(#{gear}, #{backup.date}, #{backup.uid})")
             | Restore
