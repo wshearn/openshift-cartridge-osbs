@@ -282,7 +282,7 @@ function PostRestoreBackup(req, res) {
         var backupString  = "";
         backupString += process.env.OPENSHIFT_DATA_DIR + "backups/";
         backupString += req.body["date"].replace(/-/g, "/") + "/" + data.name;
-        backupString += "-"+ req.body["uuid"] + "tar.gz"
+        backupString += "-"+ req.body["uuid"] + ".tar.gz"
 
         var cronString  = "";
         cronString += OSBS.config.site.gearHome;
