@@ -56,7 +56,7 @@ fi
 
 touch $OPENSHIFT_DATA_DIR/.${app}-${uuid}-restore-running
 
-ssh_options="${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa -o StrictHostKeyChecking=no "
+ssh_options="-i ${OPENSHIFT_DATA_DIR}/.ssh/osbs_id_rsa -o StrictHostKeyChecking=no "
 ssh_host="${uuid}@${app}-${OPENSHIFT_NAMESPACE}"
 ssh_host+="$(echo ${OPENSHIFT_GEAR_DNS} | sed "s/.*${OPENSHIFT_NAMESPACE}//") "
 
