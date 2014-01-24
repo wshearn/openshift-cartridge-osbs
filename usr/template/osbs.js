@@ -26,11 +26,11 @@ var usedSpace = "";
 if (OSBS.config.site.on_openshift)
     execute("quota | tail -1 | awk '{print $3 }'", getDiskSpace);
 else
-    execute("echo 10240", getDiskSpace);
+    diskSpace = "10240";
 if (OSBS.config.site.on_openshift)
     execute("du -s $HOME | awk '{print $1 }'", getUsedSpace);
 else
-    execute("echo 1024", getUsedSpace);
+    getUsedSpace = "1024"
 /// End Module Init
 
 /// Routes
@@ -66,14 +66,12 @@ function getUsedSpace (output) {
 }
 
 function reloadBackups () {
-    try
-    {
+    try {
         var backupStats = fs.statSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
-        if (backupStats.isFile())
-            {
-                OSBS.backups = require("./backups.json");
-                fs.unlinkSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
-            }
+        if (backupStats.isFile()) {
+            OSBS.backups = require("./backups.json");
+            fs.unlinkSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
+        }
     } catch(e) {}
 }
 
@@ -241,15 +239,15 @@ function RenderScheduleBackup(req, res) {
 // More secure != most secured. Need to evaluate how secure this really is.
 function GetGearDownload (req, res) {
     var downloadPath  = "";
-    downloadPath += OSBS.config.site.gearHome + "/";
-    downloadPath += "app-root/data/backups/";
-    downloadPath += req.params.date.replace(/-/g, "/") + "/";
-    downloadPath += req.params.gear + "-" + req.params.uid + ".tar.gz";
+        downloadPath += OSBS.config.site.gearHome + "/";
+        downloadPath += "app-root/data/backups/";
+        downloadPath += req.params.date.replace(/-/g, "/") + "/";
+        downloadPath += req.params.gear + "-" + req.params.uid + ".tar.gz";
 
     var downloadName  = req.params.gear + "_";
-    downloadName += req.params.date.replace(/\//g, "-") + ".tar.gz"
+        downloadName += req.params.date.replace(/\//g, "-") + ".tar.gz"
 
-        res.download(downloadPath, downloadName);
+    res.download(downloadPath, downloadName);
 }
 /// End Get Routes
 
@@ -280,21 +278,21 @@ function PostRestoreBackup(req, res) {
             throw "Gear Not Found";
 
         var backupString  = "";
-        backupString += process.env.OPENSHIFT_DATA_DIR + "backups/";
-        backupString += req.body["date"].replace(/-/g, "/") + "/" + data.name;
-        backupString += "-"+ req.body["uuid"] + ".tar.gz"
+            backupString += process.env.OPENSHIFT_DATA_DIR + "backups/";
+            backupString += req.body["date"].replace(/-/g, "/") + "/" + data.name;
+            backupString += "-"+ req.body["uuid"] + ".tar.gz"
 
         var cronString  = "";
-        cronString += OSBS.config.site.gearHome;
-        cronString += "osbs/bin/cron-restore";
-        cronString += " -g " + data.name;
-        cronString += " -u " + data.uuid;
-        cronString += " -b " + backupString;
+            cronString += OSBS.config.site.gearHome;
+            cronString += "osbs/bin/cron-restore";
+            cronString += " -g " + data.name;
+            cronString += " -u " + data.uuid;
+            cronString += " -b " + backupString;
 
         var baseCronPath  = "";
-        baseCronPath += OSBS.config.site.gearHome + "/";
-        baseCronPath += "app-root/repo/.openshift/cron/"
-        baseCronPath += "minutely/";
+            baseCronPath += OSBS.config.site.gearHome + "/";
+            baseCronPath += "app-root/repo/.openshift/cron/"
+            baseCronPath += "minutely/";
 
         var cronPath = baseCronPath + data.name + "-restore";
         var jobsPath = baseCronPath + "jobs.allow";
@@ -333,16 +331,16 @@ function PostScheduleBackup(req, res) {
             }
 
             var cronString  = "";
-            cronString += OSBS.config.site.gearHome;
-            cronString += "osbs/bin/cron-snapshot";
-            cronString += " -g " + data.name;
-            cronString += " -u " + data.uuid;
-            cronString += " -o " + occur + "\n";
+                cronString += OSBS.config.site.gearHome;
+                cronString += "osbs/bin/cron-snapshot";
+                cronString += " -g " + data.name;
+                cronString += " -u " + data.uuid;
+                cronString += " -o " + occur + "\n";
 
             var baseCronPath  = "";
-            baseCronPath += OSBS.config.site.gearHome + "/";
-            baseCronPath += "app-root/repo/.openshift/cron/"
-            baseCronPath += occur + "/";
+                baseCronPath += OSBS.config.site.gearHome + "/";
+                baseCronPath += "app-root/repo/.openshift/cron/"
+                baseCronPath += occur + "/";
 
             var cronPath = baseCronPath + data.name;
             var jobsPath = baseCronPath + "jobs.allow";

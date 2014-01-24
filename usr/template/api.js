@@ -241,10 +241,10 @@ function RestGetGears (req, res) {
 }
 
 function RestAddBackup (req, res) {
-    var request        = ApiParseReq(req, res);
-    var result         = {};
-    var retCode        = 200;
-    var backup         = {
+    var request  = ApiParseReq(req, res);
+    var result   = {};
+    var retCode  = 200;
+    var backup   = {
         uid:  GetArgument(req, "uid"),
         size: GetArgument(req, "size"),
         date: GetArgument(req, "date").replace(/\//g, "-"),
@@ -398,17 +398,17 @@ function RestScheduleBackup (req, res) {
                 data.backups[occur] = true;
             }
 
-            var cronString   = "";
-            cronString += OSBS.config.site.gearHome;
-            cronString += "osbs/bin/cron-snapshot";
-            cronString += " -g " + data.name;
-            cronString += " -u " + data.uuid;
-            cronString += " -o " + occur + "\n";
+            var cronString  = "";
+                cronString += OSBS.config.site.gearHome;
+                cronString += "osbs/bin/cron-snapshot";
+                cronString += " -g " + data.name;
+                cronString += " -u " + data.uuid;
+                cronString += " -o " + occur + "\n";
 
-            var baseCronPath   = "";
-            baseCronPath += OSBS.config.site.gearHome + "/";
-            baseCronPath += "app-root/repo/.openshift/cron/"
-            baseCronPath += occur + "/";
+            var baseCronPath  = "";
+                baseCronPath += OSBS.config.site.gearHome + "/";
+                baseCronPath += "app-root/repo/.openshift/cron/"
+                baseCronPath += occur + "/";
 
             var cronPath = baseCronPath + data.name;
             var jobsPath = baseCronPath + "jobs.allow";
