@@ -36,7 +36,7 @@
 
     self.update_active_link = function(index) {
       var link = $('a[data-orbit-link="'+slides_container.children().eq(index).attr('data-orbit-slide')+'"]');
-      link.parents('ul').find('[data-orbit-link]').removeClass(settings.bullets_active_class);
+      link.siblings().removeClass(settings.bullets_active_class);
       link.addClass(settings.bullets_active_class);
     };
 
@@ -67,6 +67,7 @@
       if (settings.bullets) {
         bullets_container = $('<ol>').addClass(settings.bullets_container_class);
         container.append(bullets_container);
+        bullets_container.wrap('<div class="orbit-bullets-container"></div>');
         slides_container.children().each(function(idx, el) {
           var bullet = $('<li>').attr('data-orbit-slide', idx);
           bullets_container.append(bullet);
@@ -90,8 +91,13 @@
       var dir = 'next';
       locked = true;
       if (next_idx < idx) {dir = 'prev';}
-      if (next_idx >= slides.length) {next_idx = 0;}
-      else if (next_idx < 0) {next_idx = slides.length - 1;}
+      if (next_idx >= slides.length) {
+        if (!settings.circular) return false;
+        next_idx = 0;
+      } else if (next_idx < 0) {
+        if (!settings.circular) return false;
+        next_idx = slides.length - 1;
+      }
       
       var current = $(slides.get(idx));
       var next = $(slides.get(next_idx));
@@ -100,7 +106,7 @@
       current.removeClass(settings.active_slide_class);
       next.css('zIndex', 4).addClass(settings.active_slide_class);
 
-      slides_container.trigger('orbit:before-slide-change');
+      slides_container.trigger('before-slide-change.fndtn.orbit');
       settings.before_slide_change();
       self.update_active_link(next_idx);
       
@@ -110,7 +116,7 @@
           locked = false;
           if (start_timer === true) {timer = self.create_timer(); timer.start();}
           self.update_slide_number(idx);
-          slides_container.trigger('orbit:after-slide-change',[{slide_number: idx, total_slides: slides.length}]);
+          slides_container.trigger('after-slide-change.fndtn.orbit',[{slide_number: idx, total_slides: slides.length}]);
           settings.after_slide_change(idx, slides.length);
         };
         if (slides_container.height() != next.height() && settings.variable_height) {
@@ -155,11 +161,20 @@
       }
     };
 
-    self.link_bullet = function(e) {
+    self.link_bullet = function(e) {    
       var index = $(this).attr('data-orbit-slide');
       if ((typeof index === 'string') && (index = $.trim(index)) != "") {
-        self._goto(parseInt(index));
+        if(isNaN(parseInt(index)))
+        {
+          var slide = container.find('[data-orbit-slide='+index+']');
+          if (slide.index() != -1) {self._goto(slide.index() + 1);}
+        }
+        else
+        {
+          self._goto(parseInt(index));
+        }
       }
+
     }
 
     self.timer_callback = function() {
@@ -267,7 +282,7 @@
       $(window).on('load', function(){
         container.prev('.preloader').css('display', 'none');
       });
-      slides_container.trigger('orbit:ready');
+      slides_container.trigger('ready.fndtn.orbit');
     };
 
     self.init();
@@ -306,7 +321,7 @@
         self.restart();
         callback();
       }, left);
-      el.trigger('orbit:timer-started')
+      el.trigger('timer-started.fndtn.orbit')
     };
 
     this.stop = function() {
@@ -317,7 +332,7 @@
       left = left - (end - start);
       var w = 100 - ((left / duration) * 100);
       self.update_progress(w);
-      el.trigger('orbit:timer-stopped');
+      el.trigger('timer-stopped.fndtn.orbit');
     };
   };
   
@@ -329,15 +344,17 @@
     animMargin[margin] = '0%';
 
     this.next = function(current, next, callback) {
-      next.animate(animMargin, duration, 'linear', function() {
+      current.animate({marginLeft:'-100%'}, duration);
+      next.animate(animMargin, duration, function() {
         current.css(margin, '100%');
         callback();
       });
     };
 
     this.prev = function(current, prev, callback) {
+      current.animate({marginLeft:'100%'}, duration);
       prev.css(margin, '-100%');
-      prev.animate(animMargin, duration, 'linear', function() {
+      prev.animate(animMargin, duration, function() {
         current.css(margin, '100%');
         callback();
       });
@@ -372,7 +389,7 @@
   Foundation.libs.orbit = {
     name: 'orbit',
 
-    version: '4.3.2',
+    version: '5.0.3',
 
     settings: {
       animation: 'slide',
@@ -399,6 +416,7 @@
       active_slide_class: 'active',
       orbit_transition_class: 'orbit-transitioning',
       bullets: true,
+      circular: true,
       timer: true,
       variable_height: false,
       swipe: true,
@@ -406,27 +424,33 @@
       after_slide_change: noop
     },
 
-    init: function (scope, method, options) {
+    init : function (scope, method, options) {
       var self = this;
-      Foundation.inherit(self, 'data_options');
+      this.bindings(method, options);
+    },
 
-      if (typeof method === 'object') {
-        $.extend(true, self.settings, method);
+    events : function (instance) {
+      var orbit_instance = new Orbit($(instance), $(instance).data('orbit-init'));
+      $(instance).data(self.name + '-instance', orbit_instance);
+    },
+
+    reflow : function () {
+      var self = this;
+
+      if ($(self.scope).is('[data-orbit]')) {
+        var $el = $(self.scope);
+        var instance = $el.data(self.name + '-instance');
+        instance.compute_dimensions();
+      } else {
+        $('[data-orbit]', self.scope).each(function(idx, el) {
+          var $el = $(el);
+          var opts = self.data_options($el);
+          var instance = $el.data(self.name + '-instance');
+          instance.compute_dimensions();
+        });
       }
-
-      if ($(scope).is('[data-orbit]')) {
-        var $el = $(scope);
-        var opts = self.data_options($el);
-        new Orbit($el, $.extend({},self.settings, opts));
-      }
-
-      $('[data-orbit]', scope).each(function(idx, el) {
-        var $el = $(el);
-        var opts = self.data_options($el);
-        new Orbit($el, $.extend({},self.settings, opts));
-      });
     }
   };
 
     
-}(Foundation.zj, this, this.document));
+}(jQuery, this, this.document));
