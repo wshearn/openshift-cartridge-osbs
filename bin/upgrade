@@ -4,11 +4,4 @@ source $OPENSHIFT_CARTRIDGE_SDK_BASH
 source "${OPENSHIFT_OSBS_DIR}/lib/util"
 source "${OPENSHIFT_OSBS_DIR}/lib/nodejs_context"
 
-nodejs_version="$1"
-old_cart_version="$2"
-new_cart_version="$3"
-
-if [[ $old_cart_version =~ 0.0.[0-4] ]]; then
-  echo "$nodejs_version" > $OPENSHIFT_OSBS_DIR/env/OPENSHIFT_OSBS_VERSION
-  update-configuration $nodejs_version
-fi
+rm -rf $OPENSHIFT_OSBS_DIR/node_modules/*
