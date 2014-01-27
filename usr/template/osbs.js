@@ -1,6 +1,4 @@
 /// Module Init
-var base_title = "OpenShift Backup Service"
-
 var fs            = require('fs'),
     express       = require('express'),
     passport      = require('passport'),
@@ -43,7 +41,6 @@ app.get('/gearlist'                          , ensureAuthenticated , RenderGearL
 app.get('/downloadbackup/:gear/:date/:uid'   , ensureAuthenticated , GetGearDownload);
 app.get('/deletegearbackup/:gear/:date/:uid' , ensureAuthenticated , RenderGearDelete);
 app.get('/accountstats'                      , ensureAuthenticated , RenderAccountStats);
-app.get('/schedulebackup'                    , ensureAuthenticated , RenderScheduleBackup);
 
 app.post('/login'                            , authenticate        , RenderIndex);
 app.post('/deletegearbackup'                 , ensureAuthenticated , PostGearDelete);
@@ -129,6 +126,7 @@ function RenderHelper (template, title, subHeader, req, res, otherItems)
         subHeader : subHeader,
         index     : OSBS.menu.items,
         loggedIn  : req.isAuthenticated(),
+        namespace : process.env.OPENSHIFT_NAMESPACE,
     };
     res.render(template, OSBS.us.extend(baseItems, otherItems));
 }
@@ -142,7 +140,7 @@ function RenderHelper (template, title, subHeader, req, res, otherItems)
 // Render the login page. See app.post('/login') at the bottom for magic
 function RenderLogin (req, res) {
     OSBS.menu.handleMenu("Index");
-    var title = base_title + " - Login";
+    var title = "Login";
     RenderHelper('login', title, 'Please login to manage your backups', req, res);
 };
 
@@ -161,7 +159,7 @@ function RenderIndex (req, res) {
 // TODO: Write api docs. yay?
 function RenderApiDocs(req, res) {
     OSBS.menu.handleMenu("API Docs");
-    var title = base_title + " - API Docs";
+    var title = "API Docs";
     RenderHelper('apidocs', title, '', req, res);
 }
 
@@ -175,20 +173,20 @@ function RenderGearInfo(req, res) {
     );
 
     OSBS.menu.handleMenu("Gear Info");
-    var title = base_title + " - Gear Info";
+    var title = "Gear Info";
     RenderHelper('gearInfo', title, '', req, res, gearInfo);
 }
 
 // Renders a list of applications you have set up(ie added the client cartridge)
 function RenderGearList(req, res) {
     OSBS.menu.handleMenu("Gear List");
-    var title = base_title + " - Gear List";
+    var title = "Gear List";
     RenderHelper('gearList', title, '', req, res, OSBS.gears);
 }
 
 // TODO: Add correct link to call delete
 function RenderGearDelete (req, res) {
-    var title = base_title + " - Delete Gear Backup";
+    var title = "Delete Gear Backup";
     var data = {
         gear : req.params.gear,
         date : req.params.date
@@ -221,16 +219,8 @@ function RenderAccountStats(req, res) {
     }
 
     OSBS.menu.handleMenu("Account Stats");
-    var title = base_title + " - Account Stats";
+    var title = "Account Stats";
     RenderHelper('accountStats', title, '', req, res, data);
-}
-
-// Render a simple space that allows people to schedule a backup
-// TODO: Merge this in with the gear info page.
-function RenderScheduleBackup(req, res) {
-    OSBS.menu.handleMenu("Schedule Backup");
-    var title = base_title + " - Schedule Backup";
-    RenderHelper('scheduleBackup', title, '', req, res, OSBS.gears);
 }
 
 // Uses express.js download function to send the backup to the user
@@ -308,6 +298,7 @@ function PostRestoreBackup(req, res) {
 
 // Done
 function PostScheduleBackup(req, res) {
+    console.log(req.body);
     try {
         var gear;
         var data = {};
@@ -352,7 +343,7 @@ function PostScheduleBackup(req, res) {
 
             return res.send("success");
     } catch (err) {
-        return res.status(500).send("failure");
+        return res.status(500).send(err);
     }
 }
 /// End Routes

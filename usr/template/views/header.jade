@@ -1,26 +1,35 @@
-nav.top-bar
+nav.top-bar(data-topbar)
   ul.title-area
     li.name
       h1
-        a(href='/') OSBS
+        a(href='/') OSBS - #{title}
     li.toggle-topbar.menu-icon
       a(href="#")
         span Menu
   section.top-bar-section
     if loggedIn
+      ul.left
+        li.divider
+        each item in index
+          if (item.active == true)
+            li.active
+              a(href="#{item.url}") #{item.title}
+          else
+            li
+              a(href="#{item.url}") #{item.title}
       ul.right
         li.has-form
           a.button(href="/logout").alert
             | LogOut
     else
-      form(action="/login", method="post", id="login-top-bar")
-        ul.right
-          li.has-form
-            input(type="text", placeholder="Username", name="username")
-          li.has-form
-            input(type="password", placeholder="Password", name="password")
-          li.has-form
-            a.button(href="#", onclick="document.getElementById('login-top-bar').submit();")
-              | Login
-
-
+      ul.left
+      ul.right
+        li.has-form
+          div.row
+            form(action="/login", method="post", id="login-top-bar")
+              div.large-5.small-4.columns
+                input(type="text", placeholder="Username", name="username")
+              div.large-5.small-4.columns
+                input(type="password", placeholder="Password", name="password")
+              div.large-2.small-2.columns
+                input.expand.button(type="submit" value="Login")

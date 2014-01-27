@@ -1,18 +1,41 @@
 extends layout
 
 block scripts
-  script(src='/js/osbs/restore_backup.js')
+  script(src='/js/osbs/gearInfo.js')
   script.
     window.onload = page_loaded();
 block content
-  div.alert-box.success(id="success-box", style="display: none")
+  div.alert-box.success(id="restore-success-box", style="display: none")
     | Restore Queued - Should be completed in the next 5 minutes
-  div.alert-box.alert(id="failure-box", style="display: none")
+  div.alert-box.alert(id="restore-failure-box", style="display: none")
     | Scheduling restore failed
+  div.alert-box.success(id="schedule-success-box", style="display: none")
+    | SUCCESS!
+  div.alert-box.alert(id="schedule-failure-box", style="display: none")
+    | FAILURE!
   div.row
-    div.large-7.columns
-      a(href="http://test-whearn.rhcloud.com")
+    div
+      a(href="http://#{gear}-#{namespace}.rhcloud.com")
         h1 #{gear}
+      hr
+    div.row
+      form#schedulebackup_form(action="/schedulebackup")
+        fieldset
+          legend Schedule Backup
+          input(type="hidden", id="gearName", name="gear", value="#{gear}")
+          div.large-5.columns
+            div.row
+              div.large-3.columns
+                label(for="occurrence") Occurrence:
+              div.large-8.columns
+                select.medium(id="occurrence", name="occurrence")
+                  option Once
+                  option Daily
+                  option Weekly
+                  option Monthly
+          div.large-2.columns
+            a.button.small(id="schedule_submit") Schedule
+
   if !backups || backups.length == 0
     div.row
       div.large-8.columns

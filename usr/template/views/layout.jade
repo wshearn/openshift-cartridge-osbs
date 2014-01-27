@@ -3,25 +3,18 @@ html(lang="en")
   head
     meta(charset="utf-8")
     block head
-    title= title
+    title OpenShift Backup Service - #{title}
     link(rel='stylesheet', href='/css/normalize.css')
     link(rel='stylesheet', href='/css/foundation.css')
 
   body
     include header
     div.row
-      if loggedIn
-        include menu
-        div.large-9.columns
-          div.row
-            div.large-12.columns
-              block content
-      else
+      div.large-12.columns
         block content
     include footer
 
     script(src='/js/vendor/jquery.js')
-    script(src='/js/vendor/custom.modernizr.js')
     script(src='/js/foundation.min.js')
     script.
       $(document).foundation();

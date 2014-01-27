@@ -25,12 +25,6 @@ Menu.items[Menu.items.length] = {
   active: false
 }
 Menu.items[Menu.items.length] = {
-  name: "Schedule Backup",
-  url: "/schedulebackup",
-  title: "Schedule Backup",
-  active: false
-}
-Menu.items[Menu.items.length] = {
   name: "API Docs",
   url: "/apidocs",
   title: "API Docs",
