@@ -6,14 +6,19 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "*",
-    "jade": "*",
-    "passport": "*",
-    "passport-http": "*",
-    "passport-local": "*",
-    "connect-flash": "*",
-    "ssh2": "*"
+    "express": "~3.4.8",
+    "jade": "~1.1.5",
+    "socket.io": "~0.9.16",
+    "passport": "~0.2.0",
+    "passport-http": "~0.2.2",
+    "passport-local": "~0.1.6",
+    "passport.socketio": "~2.2.1",
+    "connect-flash": "~0.1.1",
+    "ssh2": "~0.2.17",
+    "wait.for": "~0.6.3",
+    "exec-sync": "~0.1.6",
+    "connect": "~2.12.0",
+    "cookie": "~0.1.0"
   },
-
   "main": "server.js"
 }

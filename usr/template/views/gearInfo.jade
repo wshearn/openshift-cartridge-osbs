@@ -4,6 +4,7 @@ block scripts
   script(src='/js/osbs/gearInfo.js')
   script.
     window.onload = page_loaded();
+    var socket = io.connect(window.location.host + '8443');
 block content
   div.alert-box.success(id="restore-success-box", style="display: none")
     | Restore Queued - Should be completed in the next 5 minutes

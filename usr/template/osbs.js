@@ -4,7 +4,7 @@ var fs            = require('fs'),
     passport      = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     flash         = require('connect-flash'),
-    exec          = require('child_process').exec,
+    exec          = require('exec-sync');
     http          = require('http');
 
 var app = module.exports = express();
@@ -22,13 +22,14 @@ var diskSpace = "";
 var usedSpace = "";
 
 if (OSBS.config.site.on_openshift)
-    execute("quota | tail -1 | awk '{print $3 }'", getDiskSpace);
+    diskSpace = exec("quota | tail -1 | awk '{print $3 }'");
 else
-    diskSpace = "10240";
+    diskSpace = "1048576";
+
 if (OSBS.config.site.on_openshift)
-    execute("du -s $HOME | awk '{print $1 }'", getUsedSpace);
+    usedSpace = exec("quota | tail -1 | awk '{print $1 }'");
 else
-    getUsedSpace = "1024"
+    usedSpace = "55724"
 /// End Module Init
 
 /// Routes
@@ -49,19 +50,6 @@ app.post('/schedulebackup'                   , ensureAuthenticated , PostSchedul
 /// End Routes
 
 /// Helper Functions
-function execute(command, callback){
-    exec(command, function(error, stdout, stderr){
-        callback(stdout.replace(/\n/, ''));
-    });
-};
-
-function getDiskSpace(output) {
-    diskSpace = output;
-}
-function getUsedSpace (output) {
-    usedSpace = output;
-}
-
 function reloadBackups () {
     try {
         var backupStats = fs.statSync(OSBS.config.site.gearHome + "/app-root/data/backups_updated");
@@ -235,16 +223,20 @@ function GetGearDownload (req, res) {
         downloadPath += req.params.gear + "-" + req.params.uid + ".tar.gz";
 
     var downloadName  = req.params.gear + "_";
-        downloadName += req.params.date.replace(/\//g, "-") + ".tar.gz"
+        downloadName += req.params.date.replace(/\//g, "-") + ".tar.gz";
 
-    res.download(downloadPath, downloadName);
+    try {
+        res.download(downloadPath, downloadName);
+    } catch(err) {
+        console.log(err);
+        res.status(404).send(err);
+    }
 }
 /// End Get Routes
 
 /// Post Routes
 // TODO: Remove from OSBS.backups and call fs.unlinksync on the backup
 function PostGearDelete (req, res) {
-    console.log(req.data);
     res.redirect('/managebackups');
 }
 
@@ -256,7 +248,6 @@ function PostRestoreBackup(req, res) {
     try {
         var gear;
         var data = {};
-        console.log(JSON.stringify(req.body, null, 4));
         for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
             if (OSBS.gears.gears[i].name === req.body["gear"]) {
                 gear = i;
@@ -298,7 +289,6 @@ function PostRestoreBackup(req, res) {
 
 // Done
 function PostScheduleBackup(req, res) {
-    console.log(req.body);
     try {
         var gear;
         var data = {};

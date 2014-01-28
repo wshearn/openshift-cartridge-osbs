@@ -274,8 +274,6 @@ function RestAddBackup (req, res) {
             return BasicApiHelper(req, res, result, 500);
         }
 
-        console.log(JSON.stringify(backup, null, 4))
-
         try {
             OSBS.backups[request["gear"]].backups[OSBS.backups[request["gear"]].backups.length] = backup;
         } catch(err) {
