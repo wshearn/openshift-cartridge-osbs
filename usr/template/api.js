@@ -16,7 +16,7 @@ passport.use(new BasicStrategy(checkAuth));
 passport.serializeUser(serializeUser);
 passport.deserializeUser(deserializeUser);
 
-var authenticate = passport.authenticate('basic', {session: true});
+var authenticate = passport.authenticate('basic', {session: false});
 /// End Module Init
 
 /// Routes
