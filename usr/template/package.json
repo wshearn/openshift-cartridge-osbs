@@ -8,17 +8,18 @@
   "dependencies": {
     "express": "~3.4.8",
     "jade": "~1.1.5",
+    "cookie": "~0.1.0",
     "socket.io": "~0.9.16",
+    "connect": "~2.12.0",
+    "connect-redis": "~1.4.6",
+    "connect-flash": "~0.1.1",
+    "redis": "~0.10.0",
     "passport": "~0.2.0",
     "passport-http": "~0.2.2",
     "passport-local": "~0.1.6",
-    "passport.socketio": "~2.2.1",
-    "connect-flash": "~0.1.1",
+    "passport.socketio": "*",
     "ssh2": "~0.2.17",
-    "wait.for": "~0.6.3",
-    "exec-sync": "~0.1.6",
-    "connect": "~2.12.0",
-    "cookie": "~0.1.0"
+    "exec-sync": "~0.1.6"
   },
   "main": "server.js"
 }

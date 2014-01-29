@@ -86,21 +86,10 @@ function checkAuth (username, password, done) {
     return done(null, false, { message: 'Unknown user or password' });
 }
 
-function authenticate (req, res, next) {
-    passport.authenticate(
-        'local',
-        {
-            failureRedirect : '/admin/login.html',
-            failureFlash    : true
-        }
-    );
-    return next();
-}
-
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated())
         return next();
-    res.redirect('/login');
+    return res.redirect('/login');
 }
 
 // Render Helper

@@ -1,3 +1,5 @@
+var socket;
+
 function scheduleRestore_ajaxCall(gear, date, uuid)
 {
   var url="/restorebackup";
@@ -7,10 +9,7 @@ function scheduleRestore_ajaxCall(gear, date, uuid)
     uuid: uuid
   }
 
-  var posting = $.post(url, data);
-
-  posting.done(scheduleRestore_showSuccessBox);
-  posting.fail(scheduleRestore_showFailureBox);
+  socket.emit('restorebackup', data);
 }
 function scheduleBackup_ajaxCall(event)
 {
@@ -46,6 +45,8 @@ function scheduleBackup_showFailureBox()
 
 
 function page_loaded () {
+  socket = io.connect("https://" + window.location.host);
+
   $("#schedule-success-box").click(function() {
       $( this ).slideUp();
   });
