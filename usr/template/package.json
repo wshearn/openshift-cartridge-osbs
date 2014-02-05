@@ -19,7 +19,9 @@
     "passport-local": "~0.1.6",
     "passport.socketio": "*",
     "ssh2": "~0.2.17",
-    "exec-sync": "~0.1.6"
+    "exec-sync": "~0.1.6",
+    "moment": "~2.5.1",
+    "mkdirp": "~0.3.5"
   },
   "main": "server.js"
 }

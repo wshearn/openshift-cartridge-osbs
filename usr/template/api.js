@@ -16,7 +16,7 @@ passport.use(new BasicStrategy(checkAuth));
 passport.serializeUser(serializeUser);
 passport.deserializeUser(deserializeUser);
 
-var authenticate = passport.authenticate('basic', {session: false});
+var authenticate = passport.authenticate('basic', {session: true});
 /// End Module Init
 
 /// Routes
@@ -39,6 +39,13 @@ function execute(command, callback){
     exec(command, function(error, stdout, stderr){
         callback(stdout.replace(/\n/, ''));
     });
+};
+
+function bytesToSize(bytes) {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return 'n/a';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 };
 
 function BasicApiHelper (req, res, result, status) {
@@ -199,6 +206,8 @@ function RestDelGear (req, res) {
             function FindGearForDel (gear) {
                 if (gear.name == request.name)
                     return gear;
+
+                return null;
             }
         );
 
@@ -230,6 +239,8 @@ function RestGetGear (req, res) {
         function FindGearForGet (gear) {
             if (gear.name == request.name)
                 return gear;
+
+            return null;
         }
     );
     result["backups"] = OSBS.backups[request.name].backups;
@@ -246,7 +257,7 @@ function RestAddBackup (req, res) {
     var retCode  = 200;
     var backup   = {
         uid:  GetArgument(req, "uid"),
-        size: GetArgument(req, "size"),
+        size: bytesToSize(GetArgument(req, "size")),
         date: GetArgument(req, "date").replace(/\//g, "-"),
     };
 
@@ -275,10 +286,10 @@ function RestAddBackup (req, res) {
         }
 
         try {
-            OSBS.backups[request["gear"]].backups[OSBS.backups[request["gear"]].backups.length] = backup;
+            OSBS.backups[request["gear"]].backups.splice(0, 0, backup);
         } catch(err) {
             OSBS.backups[request["gear"]].backups = [];
-            OSBS.backups[request["gear"]].backups[OSBS.backups[request["gear"]].backups.length] = backup;
+            OSBS.backups[request["gear"]].backups.splice(0, 0, backup);
         }
 
         fs.writeFileSync(

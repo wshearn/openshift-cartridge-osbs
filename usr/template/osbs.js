@@ -144,10 +144,10 @@ function RenderApiDocs(req, res) {
 function RenderGearInfo(req, res) {
     reloadBackups();
 
-    var gearInfo = OSBS.us.extend(
-        {gear: req.params.gear},
-        OSBS.backups[req.params.gear]
-    );
+    var gearInfo = {
+        gear: req.params.gear,
+        backups: OSBS.backups[req.params.gear].backups
+    }
 
     OSBS.menu.handleMenu("Gear Info");
     var title = "Gear Info";

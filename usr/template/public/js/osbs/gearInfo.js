@@ -1,65 +1,72 @@
 var socket;
 
-function scheduleRestore_ajaxCall(gear, date, uuid)
+function restoreBackup(gear, date, uid)
 {
-  var url="/restorebackup";
   var data = {
     gear: gear,
     date: date,
-    uuid: uuid
+    uid:  uid
   }
 
   socket.emit('restorebackup', data);
 }
-function scheduleBackup_ajaxCall(event)
+function takeBackup(gear)
 {
-  var url=$("#schedulebackup_form").attr("action");
   var data = {
-    gear: $("#gearName").val(),
-    occurrence: $("#occurrence").val()
+    gear: gear
   }
 
-  var posting = $.post(url, data);
-
-  posting.done(scheduleBackup_showSuccessBox);
-  posting.fail(scheduleBackup_showFailureBox);
+  socket.emit('takebackup', data)
 }
 
 function scheduleRestore_showSuccessBox()
 {
   $("#restore-success-box").slideDown();
 }
-function scheduleBackup_showSuccessBox()
-{
-  $("#schedule-success-box").slideDown();
-}
-
 function scheduleRestore_showFailureBox()
 {
   $("#restore-failure-box").slideDown();
 }
-function scheduleBackup_showFailureBox()
-{
-  $("#schedule-failure-box").slideDown();
+
+function updateScheduleBox(data) {
+  if (data.status == "finished") {
+    var newBackup = "";
+        newBackup += '<div class="row", id="newbackup-' + data.backup.uid +'", style="display: none" >';
+        newBackup += '  <div class="large-4 columns">';
+        newBackup += '    <h4>'+ data.backup.date +'</h4>';
+        newBackup += '  </div>';
+        newBackup += '  <div class="large-2 columns">';
+        newBackup += '    <h4>' + data.backup.size +'</h4>';
+        newBackup += '  </div>';
+        newBackup += '  <div class="large-4 columns">';
+        newBackup += '    <h4><a href="/downloadbackup/' + data.gear + '/' + data.backup.date + '/' + data.backup.uid +'">Download</a></h4>';
+        newBackup += '  </div>';
+        newBackup += '  <div class="large-2 columns">';
+        newBackup += '    <button onclick="restoreBackup(\'' + data.gear + '\', \'' + data.backup.date + '\', \'' + data.backup.uid +'\')" class="warn button">Restore</button>';
+        newBackup += '  </div>';
+        newBackup += '</div>';
+
+    $("div#backups").html(newBackup + $("div#backups").html())
+    $("#newbackup-" + data.backup.uid).slideDown();
+    $("#scheduleBox").slideUp();
+  } else {
+    $("#scheduleBox").text(data.message);
+    $("#scheduleBox").slideDown();
+  }
 }
 
+function updateRestoreBox (data) {
+  $("#restoreBox").text(data.message);
+  $("#restoreBox").slideDown();
+}
 
 function page_loaded () {
-  socket = io.connect("https://" + window.location.host);
+  socket = io.connect("http://" + window.location.hostname + ":8000");
 
-  $("#schedule-success-box").click(function() {
+  socket.on("scheduleupdate", updateScheduleBox);
+  socket.on("restoreupdate", updateRestoreBox);
+
+  $("#scheduleBox").click(function() {
       $( this ).slideUp();
-  });
-  $("#schedule-failure-box").click(function() {
-      $( this ).slideUp();
-  });
-  $("#restore-success-box").click(function() {
-      $( this ).slideUp();
-  });
-  $("#restore-failure-box").click(function() {
-      $( this ).slideUp();
-  });
-  $("#schedule_submit").click(function(event) {
-      scheduleBackup_ajaxCall(event);
   });
 }

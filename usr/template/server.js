@@ -50,42 +50,61 @@ var osbs       = require('./osbs.js'),
 var passportSocketIo = require("passport.socketio");
 
 var app               = express(),
-    redis             = require('redis').createClient(),
     RedisStore        = require('connect-redis')(connect),
-    parseCookie       = require('connect').utils.parseCookie,
+    parseCookie       = require('connect').utils.parseCookie;
+
+var redis             = require('redis').createClient(
+        OSBS.config.redis.port,
+        OSBS.config.redis.host,
+        {
+            auth_pass: OSBS.config.redis.pass
+        }
+    ),
     sessionStore      = new RedisStore({
-      client:   redis,
-      host:     OSBS.config.redis.host,
-      port:     OSBS.config.redis.port
+      client:   redis
     });
 
 OSBS.server.http  = http.createServer(app);
 
-app.configure(function(){
-  app.locals.pretty = true;
-  app.set('ip'   , OSBS.config.web.host);
-  app.set('port' , OSBS.config.web.port);
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.logger('dev'));
-  app.use(express.cookieParser());
-  app.use(express.errorHandler());
-  app.set('view engine', 'jade');
-  app.use(express.static(__dirname + "/public"));
-  app.use(express.session(
-      {
-          store:  sessionStore,
-          secret: OSBS.config.site.secretKey
-      }
-  ));
-
-  app.use(app.router);
-  osbs.locals.pretty = true;
-  app.use(osbs);
-});
+app.configure(expressSettings);
 
 OSBS.server.http.listen(app.get('port'), app.get('ip'));
 OSBS.server.http.on('listening', serverListening);
+
+function expressSettings() {
+    app.use(function(req, res, next) {
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+        if ('OPTIONS' == req.method) {
+            res.send(200);
+        } else {
+            next();
+        }
+    });
+
+    app.locals.pretty = true;
+    app.set('ip'   , OSBS.config.web.host);
+    app.set('port' , OSBS.config.web.port);
+    app.use(express.bodyParser());
+    app.use(express.methodOverride());
+    app.use(express.logger('dev'));
+    app.use(express.cookieParser());
+    app.use(express.errorHandler());
+    app.set('view engine', 'jade');
+    app.use(express.static(__dirname + "/public"));
+    app.use(express.session(
+        {
+            store:  sessionStore,
+            secret: OSBS.config.site.secretKey
+        }
+    ));
+
+    app.use(app.router);
+    osbs.locals.pretty = true;
+    app.use(osbs);
+}
 
 function serverListening () {
     console.log('Openshift Backup Service<%s mode> started on port %s at %s',

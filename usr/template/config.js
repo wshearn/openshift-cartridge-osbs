@@ -6,7 +6,7 @@ config.site  = {};
 
 // IP:Port to listen on
 config.web.host      = "localhost";
-config.web.port      = 3000;
+config.web.port      = 8000;
 config.site.gearHome = process.env.HOME + "/osbsTest";
 
 config.site.env          = "development";
@@ -16,6 +16,7 @@ config.site.on_openshift = false;
 
 config.redis.host        = "localhost";
 config.redis.port        = 6379;
+config.redis.pass        = process.env.REDIS_PASS || process.env.REDIS_PASSWORD;
 
 // OpenShift settings.
 if (typeof(process.env.OPENSHIFT_OSBS_IP) != "undefined")
