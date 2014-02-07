@@ -15,7 +15,7 @@ Version:
 Installation:
 --------------
 ```sh
-rhc app create osbs http://tinyurl.com/OpenShiftBackupService cron
+rhc app create osbs http://tinyurl.com/OpenShiftBackupService http://cartreflect-claytondev.rhbutt.com/reflect?github=smarterclayton/openshift-redis-cart cron
 ```
 Make note of the password that is printed out.
 
