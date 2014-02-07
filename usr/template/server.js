@@ -101,9 +101,10 @@ function expressSettings() {
         }
     ));
 
-    app.use(app.router);
     osbs.locals.pretty = true;
+    app.use(app.router);
     app.use(osbs);
+    app.use(api);
 }
 
 function serverListening () {
