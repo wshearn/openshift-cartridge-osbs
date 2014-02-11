@@ -1,42 +1,70 @@
 extends layout
 
+block styles
+  link(rel='stylesheet', href='/css/custom.css')
 block scripts
   script(src='/js/osbs/gearInfo.js')
   script.
     jQuery(document).ready(page_loaded());
-    function bytesToSize(bytes) {
-      var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-      if (bytes == 0) return 'n/a';
-      var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-      if (i == 0) return bytes + ' ' + sizes[i+1];
-      return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i+1];
-    };
 block content
-  div.alert-box.success(id="restoreBox", style="display: none")
+  div.alert-box.success(id="infoBox", style="display: none")
     | Little Bunny Foo Foo
-  div.alert-box.success(id="scheduleBox", style="display: none")
-    | SUCCESS!
   div.row
-    div
-      a(href="http://#{gear}-#{namespace}.rhcloud.com")
-        h1 #{gear}
-      hr
     div.row
-      fieldset
-        legend Schedule Backup
-        div.large-5.columns
-          div.row
-            div.large-3.columns
-              label(for="occurrence") Occurrence:
-            div.large-8.columns
-              select.medium(id="occurrence", name="occurrence")
-                option Once
-                option Daily
-                option Weekly
-                option Monthly
-        div.large-2.columns
-          button.button.small(onclick="takeBackup('#{gear}')")
-            | Schedule
+      div.large-3.columns
+        a(href="http://#{gear}-#{namespace}.rhcloud.com")
+          h1 #{gear}
+        if backups && backups.length != 0
+          p.subtitle Number of backups: #{backups.length}
+      div.large-7.columns.right
+        fieldset
+          legend Schedule Backup
+          div.large-3.columns
+            | Daily:
+            div.switch.small
+              if scheduled.daily == true
+                input(type="radio" name="switch-daily" id="daily" onchange="scheduleDaily('#{gear}')")
+                label(for="daily") OFF
+                input(type="radio" name="switch-daily" id="daily1" onchange="scheduleDaily('#{gear}')" checked)
+                label(for="daily1") ON
+              else
+                input(type="radio" name="switch-daily" id="daily" onchange="scheduleDaily('#{gear}')" checked)
+                label(for="daily") OFF
+                input(type="radio" name="switch-daily" id="daily1" onchange="scheduleDaily('#{gear}')")
+                label(for="daily1") ON
+            span
+          div.large-3.columns
+            | Weekly:
+            div.switch.small
+              if scheduled.weekly == true
+                input(type="radio" name="switch-weekly" id="weekly" onchange="scheduleWeekly('#{gear}')")
+                label(for="weekly" onclick="") OFF
+                input(type="radio" name="switch-weekly" id="weekly1" onchange="scheduleWeekly('#{gear}')" checked)
+                label(for="weekly1" onclick="") ON
+              else
+                input(type="radio" name="switch-weekly" id="weekly" onchange="scheduleWeekly('#{gear}')" checked)
+                label(for="weekly" onclick="") OFF
+                input(type="radio" name="switch-weekly" id="weekly1" onchange="scheduleWeekly('#{gear}')")
+                label(for="weekly1" onclick="") ON
+            span
+          div.large-3.columns
+            | Monthly:
+            div.switch.small
+              if scheduled.monthly == true
+                input(type="radio" name="switch-monthly" id="monthly" onchange="scheduleMonthly('#{gear}')")
+                label(for="monthly" onclick="") OFF
+                input(type="radio" name="switch-monthly" id="monthly1" onchange="scheduleMonthly('#{gear}')" checked)
+                label(for="monthly1" onclick="") ON
+              else
+                input(type="radio" name="switch-monthly" id="monthly" onchange="scheduleMonthly('#{gear}')" checked)
+                label(for="monthly" onclick="") OFF
+                input(type="radio" name="switch-monthly" id="monthly1" onchange="scheduleMonthly('#{gear}')")
+                label(for="monthly1" onclick="") ON
+            span
+          div.large-3.columns
+            button.button.small(onclick="takeBackup('#{gear}')")
+              | Backup Now
+    hr
 
   if !backups || backups.length == 0
     div.row
@@ -44,26 +72,31 @@ block content
         h3 You have no backups for this gear
   else
     div.row
-      div.large-4.columns
-        h3 Backup Date
-      div.large-2.columns
+      div.small-3.columns
+        h3 Name
+      div.small-2.columns
+        h3 Date
+      div.small-2.columns
         h3 Size
-      div.large-4.columns
-        h3 Download Backup
-      div.large-2.columns
+      div.small-2.columns
+        h3 Download
+      div.small-2.columns.left
         h3 Restore
     hr
     div(id="backups")
       each backup in backups
-        div.row
-          div.large-4.columns
+        div.row(id="#{backup.uid}")
+          div.small-3.columns
+            h4 Name
+          div.small-2.columns
             h4= backup.date
-          div.large-2.columns
-            h4= backup.size
-          div.large-4.columns
+          div.small-2.columns
+            h4.backupSize= backup.size
+          div.small-2.columns
             h4
               a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
                 | Download
-          div.large-2.columns
+          div.small-2.columns
             button.warn.button(onclick="restoreBackup('#{gear}', '#{backup.date}', '#{backup.uid}')")
               | Restore
+          span.gicon-remove.left(title="Delete this backup", onclick="deleteBackup('#{gear}', '#{backup.uid}')")

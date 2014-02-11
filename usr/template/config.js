@@ -1,4 +1,4 @@
-var config = {}
+var config = {};
 
 config.web   = {};
 config.redis = {};

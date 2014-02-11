@@ -29,7 +29,7 @@ else
 if (OSBS.config.site.on_openshift)
     usedSpace = exec("quota | tail -1 | awk '{print $1 }'");
 else
-    usedSpace = "55724"
+    usedSpace = "55724";
 /// End Module Init
 
 /// Routes
@@ -44,9 +44,6 @@ app.get('/deletegearbackup/:gear/:date/:uid' , ensureAuthenticated , RenderGearD
 app.get('/accountstats'                      , ensureAuthenticated , RenderAccountStats);
 
 app.post('/login'                            , authenticate        , RenderIndex);
-app.post('/deletegearbackup'                 , ensureAuthenticated , PostGearDelete);
-app.post('/restorebackup'                    , ensureAuthenticated , PostRestoreBackup);
-app.post('/schedulebackup'                   , ensureAuthenticated , PostScheduleBackup);
 /// End Routes
 
 /// Helper Functions
@@ -69,11 +66,12 @@ function serializeUser (user, done) {
 }
 
 function findById(id, done, err) {
+    if (err) throw new Error(err);
     var idx = id - 1;
     if (OSBS.users[idx])
         done(null, OSBS.users[idx]);
     else
-        new error('User ' + id + ' does not exist');
+        throw new Error('User ' + id + ' does not exist');
 }
 
 function checkAuth (username, password, done) {
@@ -103,7 +101,7 @@ function RenderHelper (template, title, subHeader, req, res, otherItems)
         subHeader : subHeader,
         index     : OSBS.menu.items,
         loggedIn  : req.isAuthenticated(),
-        namespace : process.env.OPENSHIFT_NAMESPACE,
+        namespace : process.env.OPENSHIFT_NAMESPACE
     };
     res.render(template, OSBS.us.extend(baseItems, otherItems));
 }
@@ -119,7 +117,7 @@ function RenderLogin (req, res) {
     OSBS.menu.handleMenu("Index");
     var title = "Login";
     RenderHelper('login', title, 'Please login to manage your backups', req, res);
-};
+}
 
 // Logout route is simple, request.logout then goto /
 function RenderLogout (req, res) {
@@ -130,8 +128,8 @@ function RenderLogout (req, res) {
 
 // We want <site url>/ to redirect to /accountstats
 function RenderIndex (req, res) {
-    res.redirect('/accountstats');
-};
+    RenderAccountStats(req, res);
+}
 
 // TODO: Write api docs. yay?
 function RenderApiDocs(req, res) {
@@ -144,10 +142,19 @@ function RenderApiDocs(req, res) {
 function RenderGearInfo(req, res) {
     reloadBackups();
 
+    var gearId = -1;
+    for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
+        if (OSBS.gears.gears[i].name === req.params.gear) {
+            gearId = i;
+            break;
+        }
+    }
+
     var gearInfo = {
         gear: req.params.gear,
-        backups: OSBS.backups[req.params.gear].backups
-    }
+        backups: OSBS.backups[req.params.gear].backups,
+        scheduled: OSBS.gears.gears[i].backups
+    };
 
     OSBS.menu.handleMenu("Gear Info");
     var title = "Gear Info";
@@ -167,7 +174,7 @@ function RenderGearDelete (req, res) {
     var data = {
         gear : req.params.gear,
         date : req.params.date
-    }
+    };
     RenderHelper('deletegearbackup', title, '', req, res, data);
 }
 
@@ -187,17 +194,16 @@ function RenderAccountStats(req, res) {
             label : OSBS.gears.gears[i].name,
             data  : numOfBackups
         }
-    };
+    }
 
     var data = {
         usedSpace : usedSpace,
         diskSpace : diskSpace,
         graphData : graphData
-    }
+    };
 
     OSBS.menu.handleMenu("Account Stats");
-    var title = "Account Stats";
-    RenderHelper('accountStats', title, '', req, res, data);
+    RenderHelper('accountStats', "Account Stats", '', req, res, data);
 }
 
 // Uses express.js download function to send the backup to the user
@@ -222,107 +228,4 @@ function GetGearDownload (req, res) {
     }
 }
 /// End Get Routes
-
-/// Post Routes
-// TODO: Remove from OSBS.backups and call fs.unlinksync on the backup
-function PostGearDelete (req, res) {
-    res.redirect('/managebackups');
-}
-
-// TODO: Doing
-// Try out ssh2 node module
-// If all else fails do a single cronjob like we do for one backup.
-// Should be pretty easy to handle
-function PostRestoreBackup(req, res) {
-    try {
-        var gear;
-        var data = {};
-        for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
-            if (OSBS.gears.gears[i].name === req.body["gear"]) {
-                gear = i;
-                data = OSBS.gears.gears[i];
-                break;
-            }
-        };
-        if (typeof(data.name) === 'undefined')
-            throw "Gear Not Found";
-
-        var backupString  = "";
-            backupString += process.env.OPENSHIFT_DATA_DIR + "backups/";
-            backupString += req.body["date"].replace(/-/g, "/") + "/" + data.name;
-            backupString += "-"+ req.body["uuid"] + ".tar.gz"
-
-        var cronString  = "";
-            cronString += OSBS.config.site.gearHome;
-            cronString += "osbs/bin/cron-restore";
-            cronString += " -g " + data.name;
-            cronString += " -u " + data.uuid;
-            cronString += " -b " + backupString;
-
-        var baseCronPath  = "";
-            baseCronPath += OSBS.config.site.gearHome + "/";
-            baseCronPath += "app-root/repo/.openshift/cron/"
-            baseCronPath += "minutely/";
-
-        var cronPath = baseCronPath + data.name + "-restore";
-        var jobsPath = baseCronPath + "jobs.allow";
-
-        fs.writeFileSync(cronPath, cronString, null);
-        fs.writeFileSync(jobsPath, data.name + "-restore\n", null);
-
-        return res.status(200).send("success");
-    } catch (err) {
-        return res.status(500).send("failure - " + err);
-    }
-}
-
-// Done
-function PostScheduleBackup(req, res) {
-    try {
-        var gear;
-        var data = {};
-        for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
-            if (OSBS.gears.gears[i].name === req.body["gear"]) {
-                gear = i;
-                data = OSBS.gears.gears[i];
-                break;
-            }
-        };
-        if (typeof(data.name) === 'undefined')
-            throw "Gear Not Found";
-
-        var occur;
-        if (req.body["occurrence"] == "Once")
-            occur = "minutely"
-        else
-            {
-                occur = req.body["occurrence"].toLowerCase();
-                data.backups[occur] = true;
-            }
-
-            var cronString  = "";
-                cronString += OSBS.config.site.gearHome;
-                cronString += "osbs/bin/cron-snapshot";
-                cronString += " -g " + data.name;
-                cronString += " -u " + data.uuid;
-                cronString += " -o " + occur + "\n";
-
-            var baseCronPath  = "";
-                baseCronPath += OSBS.config.site.gearHome + "/";
-                baseCronPath += "app-root/repo/.openshift/cron/"
-                baseCronPath += occur + "/";
-
-            var cronPath = baseCronPath + data.name;
-            var jobsPath = baseCronPath + "jobs.allow";
-
-            fs.writeFileSync(cronPath, cronString, null);
-            fs.writeFileSync(jobsPath, data.name + "\n", null);
-
-            OSBS.gears.gears[gear] = data;
-
-            return res.send("success");
-    } catch (err) {
-        return res.status(500).send(err);
-    }
-}
 /// End Routes

@@ -36,17 +36,17 @@ app.post('/api/unschedulebackup' , authenticate  , RestUnscheduleBackup);
 
 /// Helper Functions
 function execute(command, callback){
-    exec(command, function(error, stdout, stderr){
+    exec(command, function(error, stdout){
         callback(stdout.replace(/\n/, ''));
     });
-};
+}
 
 function bytesToSize(bytes) {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if (bytes == 0) return 'n/a';
     var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
-};
+}
 
 function BasicApiHelper (req, res, result, status) {
     var httpStatus  = 200;
@@ -65,7 +65,7 @@ function BasicApiHelper (req, res, result, status) {
     else
         output = JSON.stringify(result);
 
-    output += "\n"
+    output += "\n";
     res.status(httpStatus).send(output);
 }
 
@@ -75,7 +75,7 @@ function GetArgument (req, item) {
     if (req.query[item])
         value = req.query[item];
     else if (req.body[item])
-        value = req.body[item]
+        value = req.body[item];
 
     return value;
 }
@@ -85,21 +85,21 @@ function ApiParseReq (req, res) {
 
     result["force"] = GetArgument(req, "force");
     if (typeof(result["force"]) === "undefined")
-        {
-            result["force"] = false;
-        }
+    {
+        result["force"] = false;
+    }
 
 
-        result["gear"] = GetArgument(req, "gear");
-        if (typeof(result["gear"]) === "undefined") {
-            result = {
-                result: false,
-                cause: "You did not send a gear name"
-            }
-            BasicApiHelper(req, res, result, 500);
-        }
+    result["gear"] = GetArgument(req, "gear");
+    if (typeof(result["gear"]) === "undefined") {
+        result = {
+            result: false,
+            cause: "You did not send a gear name"
+        };
+        BasicApiHelper(req, res, result, 500);
+    }
 
-        return result;
+    return result;
 }
 
 function deserializeUser (id, done) {
@@ -111,11 +111,12 @@ function serializeUser (user, done) {
 }
 
 function findById(id, done, err) {
+    if (err) throw new Error(err);
     var idx = id - 1;
     if (OSBS.users[idx])
         done(null, OSBS.users[idx]);
     else
-        new error('User ' + id + ' does not exist');
+        throw new Error('User ' + id + ' does not exist');
 }
 
 function checkAuth (username, password, done) {
@@ -137,17 +138,15 @@ function RestApiHelp (req, res) {
 }
 
 function RestAddGear (req, res) {
-    var result = {};
+    var result = ApiParseReq(req, res);
     var status = 200;
-
-    result = ApiParseReq(req, res);
 
     result["uuid"] = GetArgument(req, "uuid");
     if (typeof(result["uuid"]) === "undefined") {
         result = {
             result: false,
             cause: "You did not send a uuid"
-        }
+        };
         BasicApiHelper(req, res, result, 500);
     }
 
@@ -193,12 +192,10 @@ function RestDelGear (req, res) {
     var request = ApiParseReq(req, res);
     var result  = {};
 
-    if (OSBS.backups[request.name].backups &&
-        OSBS.backups[request.name].backups.length > 0 &&
-            request.force  == false) {
+    if (OSBS.backups[request.name].backups && OSBS.backups[request.name].backups.length > 0 && request.force  == false) {
         result["result"] = false;
-    result["cause"]  = "This gear still has backups"
-    return BasicApiHelper(req, res, result, 500);
+        result["cause"]  = "This gear still has backups";
+        return BasicApiHelper(req, res, result, 500);
     } else {
         result["result"] = true;
         result["gear"]   = OSBS.us.find(
@@ -207,7 +204,11 @@ function RestDelGear (req, res) {
                 if (gear.name == request.name)
                     return gear;
 
-                return null;
+                var ret = {
+                    result: false,
+                    cause: "Gear not found"
+                };
+                return BasicApiHelper(req, res, ret, 500);
             }
         );
 
@@ -240,7 +241,11 @@ function RestGetGear (req, res) {
             if (gear.name == request.name)
                 return gear;
 
-            return null;
+            var ret = {
+                result: false,
+                cause: "Gear not found"
+            };
+            return BasicApiHelper(req, res, ret, 500);
         }
     );
     result["backups"] = OSBS.backups[request.name].backups;
@@ -258,50 +263,50 @@ function RestAddBackup (req, res) {
     var backup   = {
         uid:  GetArgument(req, "uid"),
         size: bytesToSize(GetArgument(req, "size")),
-        date: GetArgument(req, "date").replace(/\//g, "-"),
+        date: GetArgument(req, "date").replace(/\//g, "-")
     };
 
-        if (typeof(backup.uid) === "undefined") {
-            result = {
-                result : false,
-                cause  : "Error getting backup uid"
-            }
-            return BasicApiHelper(req, res, result, 500);
-        }
-
-        if (typeof(backup.size) === "undefined") {
-            result = {
-                result : false,
-                cause  : "Error getting backup size"
-            }
-            return BasicApiHelper(req, res, result, 500);
-        }
-
-        if (typeof(backup.date) === "undefined") {
-            result = {
-                result : false,
-                cause  : "Error getting backup date"
-            }
-            return BasicApiHelper(req, res, result, 500);
-        }
-
-        try {
-            OSBS.backups[request["gear"]].backups.splice(0, 0, backup);
-        } catch(err) {
-            OSBS.backups[request["gear"]].backups = [];
-            OSBS.backups[request["gear"]].backups.splice(0, 0, backup);
-        }
-
-        fs.writeFileSync(
-            "./backups.json",
-            JSON.stringify(OSBS.backups, null, 4),
-            'UTF-8'
-        );
-
+    if (typeof(backup.uid) === "undefined") {
         result = {
-            result: true
-        }
-        return BasicApiHelper(req, res, result, retCode);
+            result : false,
+            cause  : "Error getting backup uid"
+        };
+        return BasicApiHelper(req, res, result, 500);
+    }
+
+    if (typeof(backup.size) === "undefined") {
+        result = {
+            result : false,
+            cause  : "Error getting backup size"
+        };
+        return BasicApiHelper(req, res, result, 500);
+    }
+
+    if (typeof(backup.date) === "undefined") {
+        result = {
+            result : false,
+            cause  : "Error getting backup date"
+        };
+        return BasicApiHelper(req, res, result, 500);
+    }
+
+    try {
+        OSBS.backups[request["gear"]].backups.splice(0, 0, backup);
+    } catch(err) {
+        OSBS.backups[request["gear"]].backups = [];
+        OSBS.backups[request["gear"]].backups.splice(0, 0, backup);
+    }
+
+    fs.writeFileSync(
+        "./backups.json",
+        JSON.stringify(OSBS.backups, null, 4),
+        'UTF-8'
+    );
+
+    result = {
+        result: true
+    };
+    return BasicApiHelper(req, res, result, retCode);
 }
 
 function RestGetBackups (req, res) {
@@ -311,7 +316,7 @@ function RestGetBackups (req, res) {
 // Hack till I can really do this
 function RestGearStarted (req, res) {
     var request = ApiParseReq(req, res);
-    var result  = {};
+    var result  = { TODO : "I need to do this" };
     var retCode = 200;
 
     var gear;
@@ -325,24 +330,24 @@ function RestGearStarted (req, res) {
         }
     }
     if (typeof(data.name) === 'undefined')
-        throw new error("Gear Not Found");
+        throw new Error("Gear Not Found");
 
     if (OSBS.gears.gears[gear].backups.daily == true)
-        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null);
 
     if (OSBS.gears.gears[gear].backups.weekly == true)
-        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null);
 
     if (OSBS.gears.gears[gear].backups.monthly == true)
-        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
+        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null);
 
-    return BasicApiHelper(req, res, { TODO : "I need to do this" })
+    return BasicApiHelper(req, res, result, retCode);
 }
 
 // Hack till I can really do this
 function RestGearStopped (req, res) {
     var request = ApiParseReq(req, res);
-    var result  = {};
+    var result  = { TODO : "I need to do this" };
     var retCode = 200;
 
     var gear;
@@ -356,18 +361,18 @@ function RestGearStopped (req, res) {
         }
     }
     if (typeof(data.name) === 'undefined')
-        throw new error("Gear Not Found");
+        throw new Error("Gear Not Found");
 
     if (OSBS.gears.gears[gear].backups.daily == true)
-        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null)
+        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null);
 
     if (OSBS.gears.gears[gear].backups.weekly == true)
-        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null)
+        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null);
 
     if (OSBS.gears.gears[gear].backups.monthly == true)
-        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null)
+        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null);
 
-    return BasicApiHelper(req, res, { TODO : "I need to do this" })
+    return BasicApiHelper(req, res, result, retCode);
 }
 
 function RestScheduleBackup (req, res) {
@@ -380,7 +385,7 @@ function RestScheduleBackup (req, res) {
         result = {
             result: false,
             cause: "Did not send an occurrence"
-        }
+        };
         BasicApiHelper(req, res, result, 500);
     }
 
@@ -393,50 +398,55 @@ function RestScheduleBackup (req, res) {
                 data = OSBS.gears.gears[i];
                 break;
             }
-        };
+        }
 
-        if (typeof(data.name) === 'undefined')
-            throw new error("Nope");
+        if (typeof(data.name) === 'undefined') {
+            result = {
+                result: false,
+                cause: "Gear not found"
+            };
+            BasicApiHelper(req, res, result, 500);
+        }
 
         var occur;
         if (occurrence.toLowerCase() === "once")
-            occur = "minutely"
+            occur = "minutely";
         else
-            {
-                occur = occurrence.toLowerCase();
-                data.backups[occur] = true;
-            }
+        {
+            occur = occurrence.toLowerCase();
+            data.backups[occur] = true;
+        }
 
-            var cronString  = "";
-                cronString += OSBS.config.site.gearHome;
-                cronString += "osbs/bin/cron-snapshot";
-                cronString += " -g " + data.name;
-                cronString += " -u " + data.uuid;
-                cronString += " -o " + occur + "\n";
+        var cronString  = "";
+            cronString += OSBS.config.site.gearHome;
+            cronString += "osbs/bin/cron-snapshot";
+            cronString += " -g " + data.name;
+            cronString += " -u " + data.uuid;
+            cronString += " -o " + occur + "\n";
 
-            var baseCronPath  = "";
-                baseCronPath += OSBS.config.site.gearHome + "/";
-                baseCronPath += "app-root/repo/.openshift/cron/"
-                baseCronPath += occur + "/";
+        var baseCronPath  = "";
+            baseCronPath += OSBS.config.site.gearHome + "/";
+            baseCronPath += "app-root/repo/.openshift/cron/";
+            baseCronPath += occur + "/";
 
-            var cronPath = baseCronPath + data.name;
-            var jobsPath = baseCronPath + "jobs.allow";
+        var cronPath = baseCronPath + data.name;
+        var jobsPath = baseCronPath + "jobs.allow";
 
-            fs.writeFileSync(cronPath, cronString, null);
-            fs.writeFileSync(jobsPath, data.name + "\n", null);
+        fs.writeFileSync(cronPath, cronString, null);
+        fs.writeFileSync(jobsPath, data.name + "\n", null);
 
-            result = {
-                result     : true,
-                occurrence : occurrence,
-                gear       : request["gear"]
-            }
+        result = {
+            result     : true,
+            occurrence : occurrence,
+            gear       : request["gear"]
+        };
 
-            OSBS.gears.gears[gear] = data;
+        OSBS.gears.gears[gear] = data;
     } catch (err) {
         result = {
             result : false,
             cause  : err
-        }
+        };
 
         retCode = 500;
     }

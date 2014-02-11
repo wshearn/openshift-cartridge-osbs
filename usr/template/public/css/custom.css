@@ -1,0 +1,378 @@
+/* Taken from Bootstrap's CSS for Glyphicons */
+
+[class^="gicon-"] {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    vertical-align: text-top;
+    background-image: url(/img/glyphicons-halflings.png);
+    background-position: 14px 14px;
+    background-repeat: no-repeat;
+    *margin-right: .3em;
+}
+[class^="gicon-"]:last-child {
+    *margin-left: 0;
+}
+.gicon-white {
+    background-image: url(/img/glyphicons-halflings-white.png);
+}
+.gicon-glass {
+    background-position: 0      0;
+}
+.gicon-music {
+    background-position: -24px 0;
+}
+.gicon-search {
+    background-position: -48px 0;
+}
+.gicon-envelope {
+    background-position: -72px 0;
+}
+.gicon-heart {
+    background-position: -96px 0;
+}
+.gicon-star {
+    background-position: -120px 0;
+}
+.gicon-star-empty {
+    background-position: -144px 0;
+}
+.gicon-user {
+    background-position: -168px 0;
+}
+.gicon-film {
+    background-position: -192px 0;
+}
+.gicon-th-large {
+    background-position: -216px 0;
+}
+.gicon-th {
+    background-position: -240px 0;
+}
+.gicon-th-list {
+    background-position: -264px 0;
+}
+.gicon-ok {
+    background-position: -288px 0;
+}
+.gicon-remove {
+    background-position: -312px 0;
+}
+.gicon-zoom-in {
+    background-position: -336px 0;
+}
+.gicon-zoom-out {
+    background-position: -360px 0;
+}
+.gicon-off {
+    background-position: -384px 0;
+}
+.gicon-signal {
+    background-position: -408px 0;
+}
+.gicon-cog {
+    background-position: -432px 0;
+}
+.gicon-trash {
+    background-position: -456px 0;
+}
+.gicon-home {
+    background-position: 0 -24px;
+}
+.gicon-file {
+    background-position: -24px -24px;
+}
+.gicon-time {
+    background-position: -48px -24px;
+}
+.gicon-road {
+    background-position: -72px -24px;
+}
+.gicon-download-alt {
+    background-position: -96px -24px;
+}
+.gicon-download {
+    background-position: -120px -24px;
+}
+.gicon-upload {
+    background-position: -144px -24px;
+}
+.gicon-inbox {
+    background-position: -168px -24px;
+}
+.gicon-play-circle {
+    background-position: -192px -24px;
+}
+.gicon-repeat {
+    background-position: -216px -24px;
+}
+.gicon-refresh {
+    background-position: -240px -24px;
+}
+.gicon-list-alt {
+    background-position: -264px -24px;
+}
+.gicon-lock {
+    background-position: -287px -24px;
+}
+.gicon-flag {
+    background-position: -312px -24px;
+}
+.gicon-headphones {
+    background-position: -336px -24px;
+}
+.gicon-volume-off {
+    background-position: -360px -24px;
+}
+.gicon-volume-down {
+    background-position: -384px -24px;
+}
+.gicon-volume-up {
+    background-position: -408px -24px;
+}
+.gicon-qrcode {
+    background-position: -432px -24px;
+}
+.gicon-barcode {
+    background-position: -456px -24px;
+}
+.gicon-tag {
+    background-position: 0 -48px;
+}
+.gicon-tags {
+    background-position: -25px -48px;
+}
+.gicon-book {
+    background-position: -48px -48px;
+}
+.gicon-bookmark {
+    background-position: -72px -48px;
+}
+.gicon-print {
+    background-position: -96px -48px;
+}
+.gicon-camera {
+    background-position: -120px -48px;
+}
+.gicon-font {
+    background-position: -144px -48px;
+}
+.gicon-bold {
+    background-position: -167px -48px;
+}
+.gicon-italic {
+    background-position: -192px -48px;
+}
+.gicon-text-height {
+    background-position: -216px -48px;
+}
+.gicon-text-width {
+    background-position: -240px -48px;
+}
+.gicon-align-left {
+    background-position: -264px -48px;
+}
+.gicon-align-center {
+    background-position: -288px -48px;
+}
+.gicon-align-right {
+    background-position: -312px -48px;
+}
+.gicon-align-justify {
+    background-position: -336px -48px;
+}
+.gicon-list {
+    background-position: -360px -48px;
+}
+.gicon-indent-left {
+    background-position: -384px -48px;
+}
+.gicon-indent-right {
+    background-position: -408px -48px;
+}
+.gicon-facetime-video {
+    background-position: -432px -48px;
+}
+.gicon-picture {
+    background-position: -456px -48px;
+}
+.gicon-pencil {
+    background-position: 0 -72px;
+}
+.gicon-map-marker {
+    background-position: -24px -72px;
+}
+.gicon-adjust {
+    background-position: -48px -72px;
+}
+.gicon-tint {
+    background-position: -72px -72px;
+}
+.gicon-edit {
+    background-position: -96px -72px;
+}
+.gicon-share {
+    background-position: -120px -72px;
+}
+.gicon-check {
+    background-position: -144px -72px;
+}
+.gicon-move {
+    background-position: -168px -72px;
+}
+.gicon-step-backward {
+    background-position: -192px -72px;
+}
+.gicon-fast-backward {
+    background-position: -216px -72px;
+}
+.gicon-backward {
+    background-position: -240px -72px;
+}
+.gicon-play {
+    background-position: -264px -72px;
+}
+.gicon-pause {
+    background-position: -288px -72px;
+}
+.gicon-stop {
+    background-position: -312px -72px;
+}
+.gicon-forward {
+    background-position: -336px -72px;
+}
+.gicon-fast-forward {
+    background-position: -360px -72px;
+}
+.gicon-step-forward {
+    background-position: -384px -72px;
+}
+.gicon-eject {
+    background-position: -408px -72px;
+}
+.gicon-chevron-left {
+    background-position: -432px -72px;
+}
+.gicon-chevron-right {
+    background-position: -456px -72px;
+}
+.gicon-plus-sign {
+    background-position: 0 -96px;
+}
+.gicon-minus-sign {
+    background-position: -24px -96px;
+}
+.gicon-remove-sign {
+    background-position: -48px -96px;
+}
+.gicon-ok-sign {
+    background-position: -72px -96px;
+}
+.gicon-question-sign {
+    background-position: -96px -96px;
+}
+.gicon-info-sign {
+    background-position: -120px -96px;
+}
+.gicon-screenshot {
+    background-position: -144px -96px;
+}
+.gicon-remove-circle {
+    background-position: -168px -96px;
+}
+.gicon-ok-circle {
+    background-position: -192px -96px;
+}
+.gicon-ban-circle {
+    background-position: -216px -96px;
+}
+.gicon-arrow-left {
+    background-position: -240px -96px;
+}
+.gicon-arrow-right {
+    background-position: -264px -96px;
+}
+.gicon-arrow-up {
+    background-position: -289px -96px;
+}
+.gicon-arrow-down {
+    background-position: -312px -96px;
+}
+.gicon-share-alt {
+    background-position: -336px -96px;
+}
+.gicon-resize-full {
+    background-position: -360px -96px;
+}
+.gicon-resize-small {
+    background-position: -384px -96px;
+}
+.gicon-plus {
+    background-position: -408px -96px;
+}
+.gicon-minus {
+    background-position: -433px -96px;
+}
+.gicon-asterisk {
+    background-position: -456px -96px;
+}
+.gicon-exclamation-sign {
+    background-position: 0 -120px;
+}
+.gicon-gift {
+    background-position: -24px -120px;
+}
+.gicon-leaf {
+    background-position: -48px -120px;
+}
+.gicon-fire {
+    background-position: -72px -120px;
+}
+.gicon-eye-open {
+    background-position: -96px -120px;
+}
+.gicon-eye-close {
+    background-position: -120px -120px;
+}
+.gicon-warning-sign {
+    background-position: -144px -120px;
+}
+.gicon-plane {
+    background-position: -168px -120px;
+}
+.gicon-calendar {
+    background-position: -192px -120px;
+}
+.gicon-random {
+    background-position: -216px -120px;
+}
+.gicon-comment {
+    background-position: -240px -120px;
+}
+.gicon-magnet {
+    background-position: -264px -120px;
+}
+.gicon-chevron-up {
+    background-position: -288px -120px;
+}
+.gicon-chevron-down {
+    background-position: -313px -119px;
+}
+.gicon-retweet {
+    background-position: -336px -120px;
+}
+.gicon-shopping-cart {
+    background-position: -360px -120px;
+}
+.gicon-folder-close {
+    background-position: -384px -120px;
+}
+.gicon-folder-open {
+    background-position: -408px -120px;
+}
+.gicon-resize-vertical {
+    background-position: -432px -119px;
+}
+.gicon-resize-horizontal {
+    background-position: -456px -118px;
+}

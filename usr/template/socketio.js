@@ -6,12 +6,10 @@ var socket              = require('socket.io'),
     exec                = require('exec-sync'),
     fs                  = require('fs'),
     ssh                 = require('ssh2'),
-    mkdirp              = require('mkdirp'),
-    passportSocketIo    = require("passport.socketio");
+    mkdirp              = require('mkdirp');
 
 var RedisStore        = require('connect-redis')(connect),
-    parseSignedCookie = connect.utils.parseSignedCookie,
-    parseCookie       = require('connect').utils.parseCookie;
+    parseSignedCookie = connect.utils.parseSignedCookie;
 
 var redis        = require('redis').createClient(
         OSBS.config.redis.port,
@@ -24,12 +22,6 @@ var redis        = require('redis').createClient(
       client:   redis
     });
 
-function bytesToSize(bytes) {
-    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes == 0) return 'n/a';
-    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
-};
 
 // We have todo it like this so we can control when Socket.IO inits.
 // It was starting up before we could setup express causing a ENOACC error
@@ -64,7 +56,7 @@ exports.setupSockets = function(){
     });
 
     io.sockets.on('connection', socketConnection);
-}
+};
 /// End Module Init
 
 /// Actual useful functions
@@ -76,19 +68,19 @@ function socketConnection(socket) {
         var statusUpdate = {
             status:  "ok",
             message: "Starting backup of " + data.gear
-        }
+        };
         var backup = {
             uid:  uid,
             size: null,
             date: date
-        }
+        };
         var gearInfo = {};
         for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
             if (OSBS.gears.gears[i].name === data.gear) {
                 gearInfo = OSBS.gears.gears[i];
                 break;
             }
-        };
+        }
         var backupPath  = "";
             backupPath += process.env.OPENSHIFT_DATA_DIR + "backups/";
             backupPath += date.replace(/-/g, "/") + "/";
@@ -125,7 +117,7 @@ function socketConnection(socket) {
                     stream.on('close', function(){
                     });
 
-                    stream.on('exit', function(code, signal){
+                    stream.on('exit', function(){
                         backup.size = fs.statSync(backupPath + backupName).size;
 
                         try {
@@ -134,6 +126,12 @@ function socketConnection(socket) {
                             OSBS.backups[data.gear].backups = [];
                             OSBS.backups[data.gear].backups.splice(0, 0, backup);
                         }
+
+                        fs.writeFileSync(
+                            "./backups.json",
+                            JSON.stringify(OSBS.backups, null, 4),
+                            'UTF-8'
+                        );
 
                         statusUpdate.status = "finished";
                         statusUpdate.message = "";
@@ -169,7 +167,7 @@ function socketConnection(socket) {
         var statusUpdate = {
             status:  "ok",
             message: "Restoring backup of gear: " + data.gear
-        }
+        };
 
         var gearInfo = {};
         for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
@@ -177,7 +175,7 @@ function socketConnection(socket) {
                 gearInfo = OSBS.gears.gears[i];
                 break;
             }
-        };
+        }
 
         try {
             var sshConnection = new ssh();
@@ -190,8 +188,8 @@ function socketConnection(socket) {
                     if (err) throw err;
                     stream.allowHalfOpen = true;
                     var recvData = '';
-                    stream.on('data', function restoreRecvData(data, extended) {
-                        recvData + data.toString();
+                    stream.on('data', function restoreRecvData(data) {
+                        recvData += data.toString();
                         if (recvData.indexOf("Activation") > -1)
                             stream.end();
                         else if (recvData.indexOf("Starting") > -1)
@@ -200,12 +198,12 @@ function socketConnection(socket) {
                             socket.emit("restoreupdate", statusUpdate);
                         }
                     });
-                    stream.on('exit', function finishedRestore(code, signal) {
+                    stream.on('exit', function finishedRestore() {
                         statusUpdate.status = "finished";
                         statusUpdate.message = "Finished restore of gear: " + data.gear;
                         socket.emit("restoreupdate", statusUpdate);
                         sshConnection.end();
-                    })
+                    });
                     var fileStream = fs.createReadStream(backupName);
                     statusUpdate.message = "Sending Backup";
                     socket.emit("restoreupdate", statusUpdate);
@@ -234,8 +232,119 @@ function socketConnection(socket) {
         }
     });
 
-    socket.on('togglebackup', function toggleBackup(data) {
+    socket.on('deletebackup', function deleteBackup(data){
+        for (var i = OSBS.backups[data.gear].backups.length-1; i >= 0; i--) {
+            if (OSBS.backups[data.gear].backups[i].uid == data.uid) {
+                var backupName  = "";
+                    backupName += process.env.OPENSHIFT_DATA_DIR + "backups/";
+                    backupName += OSBS.backups[data.gear].backups[i].date.replace(/-/g, "/") + "/";
+                    backupName += data.gear + "-" + data.uid + ".tar.gz";
+                console.log(backupName);
+                fs.unlink(backupName, function(err){
+                    if (err) throw err;
+                    console.log("Backup Deleted");
+                });
+                OSBS.backups[data.gear].backups.splice(i, 1);
+            }
+        }
+
+        fs.writeFileSync(
+            "./backups.json",
+            JSON.stringify(OSBS.backups, null, 4),
+            'UTF-8'
+        );
+        console.log(JSON.stringify(OSBS.backups[data.gear].backups, null, 4));
+    });
+
+    socket.on('scheduledaily', function scheduleDaily(data){
         console.log(JSON.stringify(data, null, 4));
+        if (data.enable)
+            ScheduleBackup(data.gear, "daily");
+        else
+            UnscheduleBackup(data.gear, "daily");
+    });
+
+    socket.on('scheduleweekly', function scheduleDaily(data){
+        console.log(JSON.stringify(data, null, 4));
+        if (data.enable)
+            ScheduleBackup(data.gear, "weekly");
+        else
+            UnscheduleBackup(data.gear, "weekly");
+    });
+
+    socket.on('schedulemonthly', function scheduleDaily(data){
+        console.log(JSON.stringify(data, null, 4));
+        if (data.enable)
+            ScheduleBackup(data.gear, "monthly");
+        else
+            UnscheduleBackup(data.gear, "monthly");
     });
 }
+
+function ScheduleBackup(gear, occur)
+{
+    var gearNum = -1;
+    var data = {};
+    for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
+        if (OSBS.gears.gears[i].name === gear) {
+            gearNum = i;
+            data = OSBS.gears.gears[i];
+            break;
+        }
+    }
+
+    var cronString  = "";
+        cronString += OSBS.config.site.gearHome;
+        cronString += "osbs/bin/cron-snapshot";
+        cronString += " -g " + data.name;
+        cronString += " -u " + data.uuid;
+        cronString += " -o " + occur + "\n";
+
+    var baseCronPath  = "";
+        baseCronPath += OSBS.config.site.gearHome + "/";
+        baseCronPath += "app-root/repo/.openshift/cron/";
+        baseCronPath += occur + "/";
+
+    var cronPath = baseCronPath + data.name;
+    var jobsPath = baseCronPath + "jobs.allow";
+
+    fs.writeFileSync(cronPath, cronString, null);
+    fs.appendFileSync(jobsPath, data.name + "\n", null);
+
+    OSBS.gears.gears[gearNum].backups[occur] = true;
+}
+
+function UnscheduleBackup(gear, occur)
+{
+    var gearNum = -1;
+    var data = {};
+    for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
+        if (OSBS.gears.gears[i].name === gear) {
+            gearNum = i;
+            data = OSBS.gears.gears[i];
+            break;
+        }
+    }
+
+    var baseCronPath  = "";
+        baseCronPath += OSBS.config.site.gearHome + "/";
+        baseCronPath += "app-root/repo/.openshift/cron/";
+        baseCronPath += occur + "/";
+
+    var jobsPath = baseCronPath + "jobs.allow";
+
+    console.log(jobsPath);
+    fs.readFile(jobsPath, function(err, data){
+        if (err) throw new Error(err);
+
+        var contents = data.toString();
+        var regexSearch = "^" + gear + "$|\n" + gear + "\n|" + gear + "\n|\n" + gear;
+        var regex = new RegExp(regexSearch);
+        var result = contents.replace(regex, '');
+        fs.writeFile(jobsPath, result, 'utf-8', function(err){
+            if (err) throw new Error(err);
+        });
+    });
+}
+
 /// End Actual useful functions

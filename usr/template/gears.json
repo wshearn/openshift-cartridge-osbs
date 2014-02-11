@@ -1,4 +1,13 @@
 {
     "gears": [
+        {
+            "name": "test",
+            "uuid": "52f543214382ec5e9f00000e",
+            "backups": {
+                "daily": false,
+                "weekly": false,
+                "monthly": false
+            }
+        }
     ]
 }

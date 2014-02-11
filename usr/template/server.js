@@ -47,11 +47,8 @@ var osbs       = require('./osbs.js'),
     api        = require('./api.js'),
     socketio   = require('./socketio.js');
 
-var passportSocketIo = require("passport.socketio");
-
 var app               = express(),
-    RedisStore        = require('connect-redis')(connect),
-    parseCookie       = require('connect').utils.parseCookie;
+    RedisStore        = require('connect-redis')(connect);
 
 var redis             = require('redis').createClient(
         OSBS.config.redis.port,
@@ -114,4 +111,4 @@ function serverListening () {
         OSBS.server.http.address().address
     );
     socketio.setupSockets();
-};
+}
