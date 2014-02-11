@@ -65,38 +65,38 @@ block content
             button.button.small(onclick="takeBackup('#{gear}')")
               | Backup Now
     hr
-
-  if !backups || backups.length == 0
-    div.row
-      div.large-8.columns
-        h3 You have no backups for this gear
-  else
-    div.row
-      div.small-3.columns
-        h3 Name
-      div.small-2.columns
-        h3 Date
-      div.small-2.columns
-        h3 Size
-      div.small-2.columns
-        h3 Download
-      div.small-2.columns.left
-        h3 Restore
-    hr
-    div(id="backups")
-      each backup in backups
-        div.row(id="#{backup.uid}")
+    div(id="content")
+      if !backups || backups.length == 0
+        div.row(id="nogears")
+          div.large-8.columns
+            h3 You have no backups for this gear
+      else
+        div.row
           div.small-3.columns
-            h4 Name
+            h3 Name
           div.small-2.columns
-            h4= backup.date
+            h3 Date
           div.small-2.columns
-            h4.backupSize= backup.size
+            h3 Size
           div.small-2.columns
-            h4
-              a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
-                | Download
-          div.small-2.columns
-            button.warn.button(onclick="restoreBackup('#{gear}', '#{backup.date}', '#{backup.uid}')")
-              | Restore
-          span.gicon-remove.left(title="Delete this backup", onclick="deleteBackup('#{gear}', '#{backup.uid}')")
+            h3 Download
+          div.small-2.columns.left
+            h3 Restore
+        hr
+        div(id="backups")
+          each backup in backups
+            div.row(id="#{backup.uid}")
+              div.small-3.columns
+                h4 Name
+              div.small-2.columns
+                h4= backup.date
+              div.small-2.columns
+                h4.backupSize= backup.size
+              div.small-2.columns
+                h4
+                  a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
+                    | Download
+              div.small-2.columns
+                button.warn.button(onclick="restoreBackup('#{gear}', '#{backup.date}', '#{backup.uid}')")
+                  | Restore
+              span.gicon-remove.left(title="Delete this backup", onclick="deleteBackup('#{gear}', '#{backup.uid}')")

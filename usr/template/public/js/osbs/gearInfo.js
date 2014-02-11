@@ -93,6 +93,28 @@ function updateScheduleBox(data) {
             newBackup += '</div>';
 
         var divBackups = $("div#backups");
+        if (!divBackups.length) {
+            var contentBlock = $("div#content");
+            var backupContent  =  '<div class="row">'
+                backupContent +=  '<div class=\"small-3 columns\">'
+                backupContent +=  '<h3>Name</h3>'
+                backupContent +=  '</div>'
+                backupContent +=  '<div class=\"small-2 columns\">'
+                backupContent +=  '<h3>Date</h3>'
+                backupContent +=  '</div>'
+                backupContent +=  '<div class=\"small-2 columns\">'
+                backupContent +=  '<h3>Size</h3>'
+                backupContent +=  '</div>'
+                backupContent +=  '<div class="small-2 columns">'
+                backupContent +=  '<h3>Download</h3>'
+                backupContent +=  '</div>'
+                backupContent +=  '<div class=\"small-2 columns left\">'
+                backupContent +=  '<h3>Restore</h3>'
+                backupContent +=  '</div> </div> </hr><div id="backups"></div>'
+            contentBlock.html(backupContent);
+            divBackups = $("div#backups");
+        }
+
         divBackups.html(newBackup + divBackups.html());
         $("#" + data.backup.uid).slideDown();
         $("#infoBox").slideUp();
