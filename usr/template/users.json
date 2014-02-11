@@ -3,14 +3,14 @@
     {
       "id": 1,
       "username": "admin",
-      "password": "wl79hgav7ble"
+      "password": "SITEADMINPASS"
     }
   ],
   "api_users": [
     {
       "id": 1,
       "username": "api_admin",
-      "password": "7wuqb9wzEKnJ"
+      "password": "APIADMINPASS"
     }
   ]
 }

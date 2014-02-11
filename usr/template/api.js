@@ -4,7 +4,10 @@ var fs            = require('fs'),
     passport      = require('passport'),
     BasicStrategy = require('passport-http').BasicStrategy,
     flash         = require('connect-flash'),
-    http          = require('http');
+    http          = require('http'),
+    ssh           = require('ssh2'),
+    exec          = require('exec-sync'),
+    mkdirp        = require('mkdirp');
 
 var app = module.exports = express();
 
@@ -35,12 +38,6 @@ app.post('/api/unschedulebackup' , authenticate  , RestUnscheduleBackup);
 /// End Routes
 
 /// Helper Functions
-function execute(command, callback){
-    exec(command, function(error, stdout){
-        callback(stdout.replace(/\n/, ''));
-    });
-}
-
 function bytesToSize(bytes) {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if (bytes == 0) return 'n/a';
@@ -162,6 +159,7 @@ function RestAddGear (req, res) {
         OSBS.gears.gears[OSBS.gears.gears.length] = {
             name: result.gear,
             uuid: result.uuid,
+            state:  "started",
             backups: {
                 daily:   false,
                 weekly:  false,
@@ -313,7 +311,76 @@ function RestGetBackups (req, res) {
     BasicApiHelper(req, res, OSBS.backups);
 }
 
-// Hack till I can really do this
+function GearStartedScheduleBackup(gear, occur)
+{
+  var gearNum = -1;
+  var data = {};
+  for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
+    if (OSBS.gears.gears[i].name === gear) {
+      gearNum = i;
+      data = OSBS.gears.gears[i];
+      break;
+    }
+  }
+  if (typeof(data.name) === 'undefined')
+      throw new Error("Gear Not Found");
+
+  var cronString  = "";
+      cronString += OSBS.config.site.gearHome;
+      cronString += "osbs/bin/cron-snapshot";
+      cronString += " -g " + data.name;
+      cronString += " -u " + data.uuid;
+      cronString += " -o " + occur + "\n";
+
+  var baseCronPath  = "";
+      baseCronPath += OSBS.config.site.gearHome + "/";
+      baseCronPath += "app-root/repo/.openshift/cron/";
+      baseCronPath += occur + "/";
+
+  var cronPath = baseCronPath + data.name;
+  var jobsPath = baseCronPath + "jobs.allow";
+
+  fs.writeFileSync(cronPath, cronString, null);
+  fs.appendFileSync(jobsPath, data.name + "\n", null);
+
+  OSBS.gears.gears[gearNum].backups[occur] = true;
+}
+
+function GearStoppedUnscheduleBackup(gear, occur)
+{
+  var gearNum = -1;
+  var data = {};
+  for (var i = OSBS.gears.gears.length - 1; i >= 0; i--) {
+    if (OSBS.gears.gears[i].name === gear) {
+      gearNum = i;
+      data = OSBS.gears.gears[i];
+      break;
+    }
+  }
+  if (typeof(data.name) === 'undefined')
+      throw new Error("Gear Not Found");
+
+  var baseCronPath  = "";
+      baseCronPath += OSBS.config.site.gearHome + "/";
+      baseCronPath += "app-root/repo/.openshift/cron/";
+      baseCronPath += occur + "/";
+
+  var jobsPath = baseCronPath + "jobs.allow";
+
+  console.log(jobsPath);
+  fs.readFile(jobsPath, function(err, data){
+    if (err) throw new Error(err);
+
+    var contents = data.toString();
+    var regexSearch = "^" + gear + "$|\n" + gear + "\n|" + gear + "\n|\n" + gear;
+    var regex = new RegExp(regexSearch);
+    var result = contents.replace(regex, '');
+    fs.writeFile(jobsPath, result, 'utf-8', function(err){
+      if (err) throw new Error(err);
+    });
+  });
+}
+
 function RestGearStarted (req, res) {
     var request = ApiParseReq(req, res);
     var result  = { TODO : "I need to do this" };
@@ -332,19 +399,23 @@ function RestGearStarted (req, res) {
     if (typeof(data.name) === 'undefined')
         throw new Error("Gear Not Found");
 
+    if (OSBS.gears.gears[gear].state === "started" || OSBS.gears.gears[gear].state === "stopping")
+      return BasicApiHelper(req, res, {}, retCode);
+
+    OSBS.gears.gears[gear].state = "started";
+
     if (OSBS.gears.gears[gear].backups.daily == true)
-        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null);
+        GearStartedScheduleBackup(data.name, "daily");
 
     if (OSBS.gears.gears[gear].backups.weekly == true)
-        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null);
+        GearStartedScheduleBackup(data.name, "weekly");
 
     if (OSBS.gears.gears[gear].backups.monthly == true)
-        execute("sed -i 's/#" + data.name + "/" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null);
+        GearStartedScheduleBackup(data.name, "monthly");
 
     return BasicApiHelper(req, res, result, retCode);
 }
 
-// Hack till I can really do this
 function RestGearStopped (req, res) {
     var request = ApiParseReq(req, res);
     var result  = { TODO : "I need to do this" };
@@ -352,6 +423,15 @@ function RestGearStopped (req, res) {
 
     var gear;
     var data    = {};
+
+    var uid  = exec("uuidgen -r | md5sum | awk '{ print $1 }'"),
+        date = require('moment')().format('YYYY-MM-DD');
+
+    var backup = {
+      uid:  uid,
+      size: null,
+      date: date
+    };
 
     for (var i = OSBS.gears.gears.length - 1; i >= 0; i--){
         if (OSBS.gears.gears[i].name === request["gear"]) {
@@ -363,14 +443,60 @@ function RestGearStopped (req, res) {
     if (typeof(data.name) === 'undefined')
         throw new Error("Gear Not Found");
 
+    if (OSBS.gears.gears[gear].state === "stopped" || OSBS.gears.gears[gear].state === "stopping")
+      return BasicApiHelper(req, res, {}, retCode);
+
+    OSBS.gears.gears[gear].state = "stopping";
+
     if (OSBS.gears.gears[gear].backups.daily == true)
-        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/daily/jobs.allow", null);
+      GearStoppedUnscheduleBackup(data.name, "daily");
 
     if (OSBS.gears.gears[gear].backups.weekly == true)
-        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/weekly/jobs.allow", null);
+      GearStoppedUnscheduleBackup(data.name, "weekly");
 
     if (OSBS.gears.gears[gear].backups.monthly == true)
-        execute("sed -i 's/" + data.name + "/#" + data.name + "/' $OPENSHIFT_REPO_DIR/.openshift/cron/monthly/jobs.allow", null);
+      GearStoppedUnscheduleBackup(data.name, "monthly");
+
+    var backupPath  = "";
+        backupPath += process.env.OPENSHIFT_DATA_DIR + "backups/";
+        backupPath += date.replace(/-/g, "/") + "/";
+    var backupName  = data.name + "-" + uid + ".tar.gz";
+    var gearDNS     = data.name + "-" + process.env.OPENSHIFT_NAMESPACE + "." + process.env.OPENSHIFT_CLOUD_DOMAIN;
+    console.log(gearDNS);
+    mkdirp.sync(backupPath, '0770');
+
+    var sshConnection = new ssh();
+    sshConnection.on('ready', function SSHConnected(){
+        sshConnection.exec('snapshot', function(err, stream){
+            stream.on('data', function getSnapshot(data, extended){
+                if (extended != 'stderr')
+                  fs.appendFileSync(backupPath + backupName, data, null);
+            });
+            stream.on('exit', function(){
+                backup.size = fs.statSync(backupPath + backupName).size;
+
+                try {
+                    OSBS.backups[data.name].backups.splice(0, 0, backup);
+                } catch(err) {
+                    OSBS.backups[data.name].backups = [];
+                    OSBS.backups[data.name].backups.splice(0, 0, backup);
+                }
+
+                OSBS.gears.gears[gear].state = "stopped";
+                fs.writeFileSync(
+                    "./backups.json",
+                    JSON.stringify(OSBS.backups, null, 4),
+                    'UTF-8'
+                );
+            });
+        });
+    });
+    sshConnection.connect({
+        host: gearDNS,
+        port: 22,
+        username: data.uuid,
+        privateKey: fs.readFileSync(process.env.OPENSHIFT_DATA_DIR + ".ssh/osbs_id_rsa")
+    });
 
     return BasicApiHelper(req, res, result, retCode);
 }

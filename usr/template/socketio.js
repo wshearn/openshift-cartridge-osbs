@@ -142,7 +142,7 @@ function socketConnection(socket) {
                });
             });
             sshConnection.connect({
-                host: data.gear + "-" + process.env.OPENSHIFT_NAMESPACE + ".rhcloud.com",
+                host: data.gear + "-" + process.env.OPENSHIFT_NAMESPACE + "." + process.env.OPENSHIFT_CLOUD_DOMAIN,
                 port: 22,
                 username: gearInfo.uuid,
                 privateKey: fs.readFileSync(process.env.OPENSHIFT_DATA_DIR + ".ssh/osbs_id_rsa")
@@ -216,7 +216,7 @@ function socketConnection(socket) {
             });
 
             sshConnection.connect({
-                host: data.gear + "-" + process.env.OPENSHIFT_NAMESPACE + ".rhcloud.com",
+                host: data.gear + "-" + process.env.OPENSHIFT_NAMESPACE + "." + process.env.OPENSHIFT_CLOUD_DOMAIN,
                 port: 22,
                 username: gearInfo.uuid,
                 privateKey: fs.readFileSync(process.env.OPENSHIFT_DATA_DIR + ".ssh/osbs_id_rsa")
@@ -309,7 +309,9 @@ function ScheduleBackup(gear, occur)
     var jobsPath = baseCronPath + "jobs.allow";
 
     fs.writeFileSync(cronPath, cronString, null);
-    fs.appendFileSync(jobsPath, data.name + "\n", null);
+
+    if (data.state === "started")
+      fs.appendFileSync(jobsPath, data.name + "\n", null);
 
     OSBS.gears.gears[gearNum].backups[occur] = true;
 }
