@@ -239,10 +239,8 @@ function socketConnection(socket) {
                     backupName += process.env.OPENSHIFT_DATA_DIR + "backups/";
                     backupName += OSBS.backups[data.gear].backups[i].date.replace(/-/g, "/") + "/";
                     backupName += data.gear + "-" + data.uid + ".tar.gz";
-                console.log(backupName);
                 fs.unlink(backupName, function(err){
                     if (err) throw err;
-                    console.log("Backup Deleted");
                 });
                 OSBS.backups[data.gear].backups.splice(i, 1);
             }
@@ -253,11 +251,9 @@ function socketConnection(socket) {
             JSON.stringify(OSBS.backups, null, 4),
             'UTF-8'
         );
-        console.log(JSON.stringify(OSBS.backups[data.gear].backups, null, 4));
     });
 
     socket.on('scheduledaily', function scheduleDaily(data){
-        console.log(JSON.stringify(data, null, 4));
         if (data.enable)
             ScheduleBackup(data.gear, "daily");
         else
@@ -265,7 +261,6 @@ function socketConnection(socket) {
     });
 
     socket.on('scheduleweekly', function scheduleDaily(data){
-        console.log(JSON.stringify(data, null, 4));
         if (data.enable)
             ScheduleBackup(data.gear, "weekly");
         else
@@ -273,7 +268,6 @@ function socketConnection(socket) {
     });
 
     socket.on('schedulemonthly', function scheduleDaily(data){
-        console.log(JSON.stringify(data, null, 4));
         if (data.enable)
             ScheduleBackup(data.gear, "monthly");
         else
@@ -335,7 +329,6 @@ function UnscheduleBackup(gear, occur)
 
     var jobsPath = baseCronPath + "jobs.allow";
 
-    console.log(jobsPath);
     fs.readFile(jobsPath, function(err, data){
         if (err) throw new Error(err);
 

@@ -367,7 +367,6 @@ function GearStoppedUnscheduleBackup(gear, occur)
 
   var jobsPath = baseCronPath + "jobs.allow";
 
-  console.log(jobsPath);
   fs.readFile(jobsPath, function(err, data){
     if (err) throw new Error(err);
 
@@ -462,7 +461,6 @@ function RestGearStopped (req, res) {
         backupPath += date.replace(/-/g, "/") + "/";
     var backupName  = data.name + "-" + uid + ".tar.gz";
     var gearDNS     = data.name + "-" + process.env.OPENSHIFT_NAMESPACE + "." + process.env.OPENSHIFT_CLOUD_DOMAIN;
-    console.log(gearDNS);
     mkdirp.sync(backupPath, '0770');
 
     var sshConnection = new ssh();
