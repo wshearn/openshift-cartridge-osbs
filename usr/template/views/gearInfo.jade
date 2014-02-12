@@ -73,12 +73,10 @@ block content
       else
         div.row
           div.small-3.columns
-            h3 Name
-          div.small-2.columns
             h3 Date
-          div.small-2.columns
+          div.small-3.columns
             h3 Size
-          div.small-2.columns
+          div.small-3.columns
             h3 Download
           div.small-2.columns.left
             h3 Restore
@@ -87,12 +85,10 @@ block content
           each backup in backups
             div.row(id="#{backup.uid}")
               div.small-3.columns
-                h4 Name
-              div.small-2.columns
                 h4= backup.date
-              div.small-2.columns
+              div.small-3.columns
                 h4.backupSize= backup.size
-              div.small-2.columns
+              div.small-3.columns
                 h4
                   a(href="/downloadbackup/#{gear}/#{backup.date}/#{backup.uid}")
                     | Download

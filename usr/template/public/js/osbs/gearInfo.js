@@ -75,15 +75,12 @@ function updateScheduleBox(data) {
         var newBackup  = "";
             newBackup += '<div class="row" id="' + data.backup.uid +'" style="display: none" >';
             newBackup += '  <div class="small-3 columns">';
-            newBackup += '    <h4>Name</h4>';
-            newBackup += '  </div>';
-            newBackup += '  <div class="small-2 columns">';
             newBackup += '    <h4>'+ data.backup.date +'</h4>';
             newBackup += '  </div>';
-            newBackup += '  <div class="small-2 columns">';
+            newBackup += '  <div class="small-3 columns">';
             newBackup += '    <h4>' + bytesToSize(data.backup.size) +'</h4>';
             newBackup += '  </div>';
-            newBackup += '  <div class="small-2 columns">';
+            newBackup += '  <div class="small-3 columns">';
             newBackup += '    <h4><a href="/downloadbackup/' + data.gear + '/' + data.backup.date + '/' + data.backup.uid +'">Download</a></h4>';
             newBackup += '  </div>';
             newBackup += '  <div class="large-2 columns">';
@@ -97,15 +94,12 @@ function updateScheduleBox(data) {
             var contentBlock = $("div#content");
             var backupContent  =  '<div class="row">'
                 backupContent +=  '<div class=\"small-3 columns\">'
-                backupContent +=  '<h3>Name</h3>'
-                backupContent +=  '</div>'
-                backupContent +=  '<div class=\"small-2 columns\">'
                 backupContent +=  '<h3>Date</h3>'
                 backupContent +=  '</div>'
-                backupContent +=  '<div class=\"small-2 columns\">'
+                backupContent +=  '<div class=\"small-3 columns\">'
                 backupContent +=  '<h3>Size</h3>'
                 backupContent +=  '</div>'
-                backupContent +=  '<div class="small-2 columns">'
+                backupContent +=  '<div class="small-3 columns">'
                 backupContent +=  '<h3>Download</h3>'
                 backupContent +=  '</div>'
                 backupContent +=  '<div class=\"small-2 columns left\">'
