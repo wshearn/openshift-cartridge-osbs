@@ -3,7 +3,7 @@ Name: osbs
 Vendor: whearn
 Cartridge-Short-Name: OSBS
 Display-Name: OSBS 1.0
-Source-Url: https://github.com/wshearn/openshift-cartridge-osbs.git
+Source-Url: https://github.com/shekhar-os/openshift-cartridge-osbs.git
 Description: OSBS is a gear backup solution for OpenShift.
 Architecture: noarch
 Version: '1.0'
@@ -12,7 +12,7 @@ Versions:
 License: APL 2.0
 License-Url: http://www.apache.org/licenses/LICENSE-2.0.html
 Website: http://www.openshift.com/
-Cartridge-Version: 1.0
+Cartridge-Version: 1.0.0
 Compatible-Versions: []
 Cartridge-Vendor: whearn
 Categories:
