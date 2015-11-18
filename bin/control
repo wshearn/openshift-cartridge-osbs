@@ -113,7 +113,7 @@ function start() {
     supervisor_opts="$(get_main_script_from_package_json)"
     node_cmd="npm start -d"
 
-    nodejs_context "nohup supervisor -e 'node|js|coffee' -p ${OPENSHIFT_OSBS_POLL_INTERVAL:-1000} -- $supervisor_opts >& $logf &"
+    nodejs_context "nohup supervisor -e 'node|js|coffee' -p ${OPENSHIFT_OSBS_POLL_INTERVAL:-10000} -- $supervisor_opts >& $logf &"
 
     retries=3
     while [ $retries -gt 0 ]; do
